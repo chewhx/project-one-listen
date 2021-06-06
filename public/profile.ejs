@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <%- include ("partials/header") %>
+  <body>
+    <%- include ("partials/navbar") %>
+    <div class="container">
+      <div class="row my-5">
+        <form
+          class="input-group col-12"
+          action="/action/enqueue"
+          method="POST"
+        >
+          <input
+            type="text"
+            class="form-control"
+            id="url"
+            name="url"
+            autocomplete="off"
+            placeholder="E.g. https://www.gemini.com/cryptopedia/compound-finance-defi-crypto"
+          />
+          <div class="input-group-append">
+            <button class="input-group-text btn-outline-dark" type="submit">
+              Convert
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="row my-5">
+        <div class="col-md-2">
+          <img src="<%- user.photo ? user.photo : `https://ui-avatars.com/api/?name=${user.name.split("").join("+")}` %>" alt="avatar-logo" class="img-fluid rounded-circle">
+        </div>
+        <div class="col-md-6">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              Name: <%= user.name %>
+            </li>
+            <li class="list-group-item">
+              Email: <%= user.email %>
+            </li>
+            <li class="list-group-item">
+              Google Drive Access: <%- user.googleToken ? "Yes" : "No" %> 
+            </li>
+          </ul>
+         
+
+        </div>
+      </div>
+
+      <ul class="list-group list-group-flush">
+      <% for (let each of user.files) { %>
+        <li class="list-group-item">
+          <div class="row">
+            <div class="col-md-6">
+              <a
+                class="btn btn-link <% if (each.status === "Completed") { %>
+                 <% } else { %>
+                  disabled
+                <% } %>"
+                href="<%= each.fileLink %>"
+                download="download clip"
+                ><%= each.fileName %></a
+              >
+              <% if (each.status === "Completed") { %>
+                <small class="badge badge-success"><%= each.status %> </small>
+                <% } else if (each.status === "Error") { %>
+                  <small class="badge badge-danger"><%= each.status %> </small>
+                  <% } else if (each.status === "Processing") { %>
+                    <small class="badge badge-secondary"><%= each.status %> </small>
+                <% } else { %>
+              <% } %>
+            </div>
+            <div class="col-md-6">
+              <button type="button" class="btn btn-link btn-sm col-md-2">Upload to Google Drive</button>
+              <button type="button" class="btn btn-link btn-sm col-md-2">Download</button>
+              <button type="button" class="btn btn-link btn-sm col-md-2">Delete</button>
+            </div>
+          </div>
+        </li>
+        <% } %>
+      </ul>
+    </div>
+  </body>
+</html>

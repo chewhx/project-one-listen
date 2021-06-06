@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <%- include ("partials/header") %>
+  <body>
+    <%- include ("partials/navbar") %>
+    <div class="container">
+      <% var loading = false %>
+
+      <div class="card mx-auto my-5" style="width: 23rem">
+        <div class="card-body">
+          <h2 class="card-title">
+            A web application which converts web articles into mp3.
+          </h2>
+          <p>Sign in to create a user account for saving your audio files.</p>
+          <a
+            type="button"
+            class="btn btn-danger btn-block my-5"
+            href="/auth/google"
+          >
+            <span><i class="bi bi-google mr-3"></i></span> Sign in with Google
+          </a>
+          <small
+            >Note: The application will be requesting for profile information
+            (name, email, googleId) and access to read and write files to your
+            Google Drive.</small
+          >
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

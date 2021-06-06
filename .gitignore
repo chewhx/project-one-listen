@@ -1,0 +1,11 @@
+*.env
+*node_modules
+*DS_Store
+config/*.json
+temp/parser/*
+downloads/*
+todos.md
+*secrets.json
+*secret.json
+*token.
+*tokens.json

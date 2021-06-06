@@ -1,0 +1,40 @@
+{
+  "name": "project-audio-articles",
+  "version": "1.0.0",
+  "description": "Node JS application parses text from online articles and convert to audio.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon app.js"
+  },
+  "keywords": [
+    "article",
+    "googlecloud",
+    "parser",
+    "url",
+    "speedreading",
+    "speedlistening",
+    "readitlater",
+    "articleparser",
+    "googlespeech",
+    "mercuryparser"
+  ],
+  "author": "chewhx",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/storage": "^5.8.5",
+    "@google-cloud/text-to-speech": "^3.2.1",
+    "@postlight/mercury-parser": "^2.2.0",
+    "axios": "^0.21.1",
+    "colors": "^1.4.0",
+    "cookie-session": "^1.4.0",
+    "dotenv": "^10.0.0",
+    "ejs": "^3.1.6",
+    "express": "^4.17.1",
+    "googleapis": "^75.0.0",
+    "mongoose": "^5.12.13",
+    "morgan": "^1.10.0",
+    "passport": "^0.4.1",
+    "passport-google-oauth20": "^2.0.0",
+    "slugify": "^1.5.3"
+  }
+}
