@@ -119,7 +119,7 @@ async function googleSpeech(file) {
           };
 
           // Send request to synthesize speech
-          const [response] = await client.synthesizeSpeech(request);
+          const [response] = await client.synthesizeSpeech(request)
 
           // Write the response to the writable stream
           write.write(response.audioContent);
