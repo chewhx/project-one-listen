@@ -3,7 +3,7 @@ const express = require("express");
 const morgan = require("morgan");
 const colors = require("colors");
 const path = require("path");
-const connectDb = require("./config/mongoose/connectDB");
+const connectDb = require("./config/mongoose/connectDb");
 
 // Start express app
 const app = express();
