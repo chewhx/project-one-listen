@@ -3,8 +3,6 @@ const textToSpeech = require("@google-cloud/text-to-speech");
 const fs = require("fs");
 const path = require("path");
 
-const storageBucket = require("./googleStorage");
-
 const { GCP_CLIENT_EMAIL, GCP_PRIVATE_KEY, GCP_PROJECT_ID } = process.env;
 
 const client = new textToSpeech.TextToSpeechClient({
@@ -21,35 +19,37 @@ const client = new textToSpeech.TextToSpeechClient({
  * @returns Audioclip saved to 'downloads' folder under project root directory
  */
 
-async function googleSpeech(filePath) {
+async function googleSpeech(file) {
   try {
-    console.log("Synthesizing audio clip...");
+    console.log(`Synthesizing audio clip...`);
 
     // Declare path to 'downloads' folder
     const downloadDirPath = path.resolve(__dirname, "../downloads");
 
     // Check if audio file already exists
     const audioFileExists = fs.existsSync(
-      path.resolve(__dirname, "../downloads", `${path.basename(filePath)}.mp3`)
+      path.resolve(__dirname, "../downloads", `${file.metadata.slug}.mp3`)
     );
 
     if (audioFileExists) {
       console.log("Audio file already downloaded.");
-      return {
-        succesS: false,
-        filePath: `${downloadDirPath}/${path.basename(filePath, ".json")}.mp3`,
-      };
+      file.filePath = path.resolve(
+        __dirname,
+        "../downloads",
+        `${file.metadata.slug}.mp3`
+      );
+      return true;
     }
 
     // Check if file path is a file or directory: https://www.technicalkeeda.com/nodejs-tutorials/how-to-check-if-path-is-file-or-directory-using-nodejs
 
-    const isDirectory = fs.statSync(filePath).isDirectory();
-    const isFile = fs.statSync(filePath).isFile();
+    const isDirectory = fs.statSync(file.filePath).isDirectory();
+    const isFile = fs.statSync(file.filePath).isFile();
 
     if (isFile) {
       // Read JSON from file
       const parsedContent = JSON.parse(
-        fs.readFileSync(filePath, { encoding: "utf-8" })
+        fs.readFileSync(file.filePath, { encoding: "utf-8" })
       );
 
       // Extract content to be converted
@@ -71,39 +71,37 @@ async function googleSpeech(filePath) {
 
       // Write the response to one audio file
       fs.writeFileSync(
-        `${downloadDirPath}/${path.basename(filePath, ".json")}.mp3`,
+        `${downloadDirPath}/${file.metadata.slug}.mp3`,
         response.audioContent,
         "binary"
       );
       console.log(
         `Audio download complete. ${new Date().toLocaleString("en-SG")}`
       );
-      return {
-        success: true,
-        filePath: `${downloadDirPath}/${path.basename(filePath, ".json")}.mp3`,
-      };
+      file.filePath = `${downloadDirPath}/${file.metadata.slug}.mp3`;
+      return true;
     }
 
     if (isDirectory) {
       // Read the files from the directory
-      const filesInFilePath = fs.readdirSync(filePath);
+      const filesInFilePath = fs.readdirSync(file.filePath);
 
       // Create write stream
       const write = fs.createWriteStream(
-        `${downloadDirPath}/${path.basename(filePath, ".json")}.mp3`,
+        `${downloadDirPath}/${file.metadata.slug}.mp3`,
         { encoding: "binary" }
       );
 
       // For each file in the directory
-      for (let file of filesInFilePath) {
+      for (let each of filesInFilePath) {
         // Extract the text content
-        if (path.extname(file) === ".txt") {
+        if (path.extname(each) === ".txt") {
           const eachFilePath = path.resolve(
             __dirname,
             "../temp",
             "parser",
-            path.basename(filePath),
-            file
+            file.metadata.slug,
+            each
           );
           const content = fs.readFileSync(eachFilePath, { encoding: "utf-8" });
 
@@ -130,17 +128,13 @@ async function googleSpeech(filePath) {
       console.log(
         `Audio download complete. ${new Date().toLocaleString("en-SG")}`
       );
-      return {
-        success: true,
-        filePath: `${downloadDirPath}/${path.basename(filePath, ".json")}.mp3`,
-      };
+      file.filePath = `${downloadDirPath}/${file.metadata.slug}.mp3`;
+      return true;
     }
     throw Error;
   } catch (error) {
     console.log(error);
-    return {
-      success: false,
-    };
+    return false;
   }
 }
 

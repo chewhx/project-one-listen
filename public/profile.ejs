@@ -52,15 +52,16 @@
         <li class="list-group-item">
           <div class="row">
             <div class="col-md-6">
-              <a
-                class="btn btn-link <% if (each.status === "Completed") { %>
+              <h4
+                class=" <% if (each.status === "Completed") { %>
                  <% } else { %>
-                  disabled
+                  text-color-grey
                 <% } %>"
                 href="<%= each.fileLink %>"
                 download="download clip"
-                ><%= each.fileName %></a
-              >
+                >
+                <%- each.metadata.title ? each.metadata.title : each.fileName  %>
+              </h4>
               <% if (each.status === "Completed") { %>
                 <small class="badge badge-success"><%= each.status %> </small>
                 <% } else if (each.status === "Error") { %>
@@ -69,10 +70,14 @@
                     <small class="badge badge-secondary"><%= each.status %> </small>
                 <% } else { %>
               <% } %>
+              <small class="text-muted"><%= each.metadata.excerpt %> </small>
             </div>
             <div class="col-md-6">
-              <button type="button" class="btn btn-link btn-sm col-md-2">Upload to Google Drive</button>
-              <button type="button" class="btn btn-link btn-sm col-md-2">Download</button>
+              <a type="button" class="btn btn-link btn-sm col-md-2 disabled">Upload to Google Drive</a>
+              <a type="button" class="btn btn-link btn-sm col-md-2 <% if (each.status === "Completed") { %>
+                <% } else { %>
+                 disabled
+               <% } %>" href="<%= each.fileLink %>">Download</a>
               <button type="button" class="btn btn-link btn-sm col-md-2">Delete</button>
             </div>
           </div>

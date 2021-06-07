@@ -27,9 +27,9 @@ router.post("/enqueue", async (req, res) => {
     const file = new File(req.body.url);
     const { _id: fileId } = await MongoFile.create({
       fileName: file.fileName,
-      fileLink: file.url,
       user: req.user._id,
       status: "Processing",
+      queue: "Parser",
     });
     file.id = fileId;
     parserQueue.enqueue(file);

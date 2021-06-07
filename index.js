@@ -39,8 +39,9 @@ app.use("/profile", require("./routes/profile"));
 app.get("/", (req, res) => {
   if (req.isAuthenticated()) {
     res.redirect(`/profile/${req.user._id}`);
+  } else {
+    res.render("index", { user: req.user });
   }
-  res.render("index", { user: req.user });
 });
 
 //  ---------------------------------------------------------------------------------------
@@ -61,35 +62,88 @@ const {
   audioQueue,
   parserNode,
   audioNode,
+  storageQueue,
+  storageNode,
 } = require("./config/classes");
+const { mercuryParser, googleSpeech, googleStorage } = require("./modules");
 
-setInterval(() => {
+const MongoFile = require("./config/mongoose/File");
+
+setInterval(async () => {
   while (parserQueue.length > 0 && parserNode.length === null) {
-    // get a file from parser queue
-
+    // dequeue from parser queue
+    const file = parserQueue.dequeue();
+    // push to parserNode
+    parserNode.push(file);
     // pass into mercury parser
-    return;
+    const parserSuccesss = await mercuryParser(file);
+    if (!parserSuccesss) {
+      file.status = "Error";
+    }
+    // update mongo file
+    const updatedMongoFile = await MongoFile.findByIdAndUpdate(
+      file.id,
+      {
+        ...file.mongo(),
+      },
+      { new: true }
+    );
+    // pop from parserNode
+    parserNode.pop();
+    // enqueue to audioQueue
+    audioQueue.enqueue(file);
   }
 }, 3000);
 
-setInterval(() => {
+setInterval(async () => {
   while (audioQueue.length > 0 && audioNode.length === null) {
+    // dequeue from audio queue
     const file = audioQueue.dequeue();
+    // push to audio node
     audioNode.push(file);
-    const userId = file.value;
-    axios
-      .get(`https://jsonplaceholder.typicode.com/users/${userId}`)
-      .then(({ data }) => {
-        console.log(`json user downloaded - ${userId}`);
-        fs.appendFileSync("./userIds.json", JSON.stringify(data), {
-          encoding: "utf-8",
-        });
-        audioNode.pop();
-        console.log(`json user written - ${userId}`);
-      })
-      .catch((err) => console.log(err));
+    // pass file into google speech
+    const synthSuccess = await googleSpeech(file);
+    if (!synthSuccess) {
+      file.status = "Error";
+    }
+    // update mongo file
+    const updatedMongoFile = await MongoFile.findByIdAndUpdate(
+      file.id,
+      { fileLink: file.fileLink, filePath: file.filePath },
+      { new: true }
+    );
+    // pop from audio node
+    audioNode.pop();
+    // enqueue to storageQueue
+    storageQueue.enqueue(file);
   }
 }, 2000);
+
+setInterval(async () => {
+  while (storageQueue.length > 0 && storageNode.length === null) {
+    // dequeue from storage queue
+    const file = storageQueue.dequeue();
+    // push to storage node
+    storageNode.push(file);
+    // pass file into google speech
+    const uploadSuccess = await googleStorage(file);
+    if (!uploadSuccess) {
+      file.status = "Error";
+    } else {
+      file.status = "Completed";
+    }
+    // update mongo file
+    const updatedMongoFile = await MongoFile.findByIdAndUpdate(
+      file.id,
+      {
+        status: file.status,
+      },
+      { new: true }
+    );
+    // pop from storage node
+    storageNode.pop();
+  }
+}, 1000);
 
 // -====================================================
 

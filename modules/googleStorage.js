@@ -14,24 +14,23 @@ const storage = new Storage({
 
 const bucket = storage.bucket("flashcard-6ec1f.appspot.com");
 
-async function googleStorage(filePath) {
+async function googleStorage(file) {
   try {
-    const destFileName = path.basename(filePath);
+    const destFileName = file.metadata.slug;
 
-    const res = await bucket.upload(filePath, {
+    const res = await bucket.upload(file.filePath, {
       destination: destFileName,
     });
     const { bucket: fileBucket, name: fileName } = res[0].metadata;
-    console.log(`${filePath} uploaded to google cloud storage`);
+    console.log(`${file.filePath} uploaded to google cloud storage`);
     fs.writeFileSync("./data.json", JSON.stringify(res), { encoding: "utf-8" });
+    file.fileLink = `https://storage.cloud.google.com/${fileBucket}/${fileName}`;
     console.log(`https://storage.cloud.google.com/${fileBucket}/${fileName}`);
     return true;
-    // return `https://storage.cloud.google.com/${metadata.bucket}/${metadata.name}`;
   } catch (error) {
     console.log(error);
     return false;
   }
 }
-
 
 module.exports = googleStorage;

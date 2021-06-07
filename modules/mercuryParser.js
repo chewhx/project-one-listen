@@ -9,25 +9,28 @@ const slug = require("../utils/slug");
  * @param {String} url Article url to be synthesized to audio
  * @returns Local filepath to json or folder of the extracted texts
  */
-async function mercuryParser(url) {
+async function mercuryParser(file) {
   try {
     console.log("Processing text...");
 
+    // Declare path for 'parser' folder
+    const parserDirPath = path.resolve(__dirname, "../temp", "parser");
+
     // Parse the text with Mercury
-    const res = await Mercury.parse(url, { contentType: "text" });
+    const res = await Mercury.parse(file.sourceUrl, { contentType: "text" });
     if (!res) throw Error;
 
-    // Slugify the title and add to response
-    res.sluggedTitle = slug(res.title);
-
-    // Count characsters and add to response
+    // Assign response meta to file
+    file.metadata.title = res.title;
+    file.metadata.slug = slug(res.title);
+    file.metadata.excerpt = res.excerpt;
+    file.metadata.wordCount = res.word_count;
+    // Count characters and add to response
     res.char_count = res.content.length;
+    file.metadata.charCount = res.char_count;
 
     // Check if char count exceeds limit of 5000
     const charCountExceeds = res.char_count >= 5000;
-
-    // Declare path for 'parser' folder
-    const parserDirPath = path.resolve(__dirname, "../temp", "parser");
 
     // Check if 'parser' folder exists, otherwise create one
     if (!fs.existsSync(parserDirPath)) {
@@ -35,36 +38,39 @@ async function mercuryParser(url) {
     }
 
     // Check if articles has already been downloaded in form of json or folder,
-    if (
-      fs.existsSync(`${parserDirPath}/${res.sluggedTitle}`) ||
-      fs.existsSync(`${parserDirPath}/${res.sluggedTitle}.json`)
-    ) {
+    const fileExist = fs.existsSync(
+      `${parserDirPath}/${file.metadata.slug}.json`
+    );
+
+    const dirExist = fs.existsSync(`${parserDirPath}/${file.metadata.slug}`);
+
+    if (dirExist) {
       console.log("Article has already been downloaded.");
-      return {
-        success: true,
-        filePath: `${parserDirPath}/${res.sluggedTitle}.json`,
-        fileName: res.sluggedTitle,
-      };
+      file.filePath = `${parserDirPath}/${file.metadata.slug}`;
+      return true;
+    }
+
+    if (fileExist) {
+      console.log("Article has already been downloaded.");
+      file.filePath = `${parserDirPath}/${file.metadata.slug}.json`;
+      return true;
     }
 
     // If character count < 5000
     if (!charCountExceeds) {
       // Save response in temp folder
       fs.writeFileSync(
-        `${parserDirPath}/${res.sluggedTitle}.json`,
+        `${parserDirPath}/${file.metadata.slug}.json`,
         JSON.stringify(res)
       );
-      return {
-        success: true,
-        filePath: `${parserDirPath}/${res.sluggedTitle}.json`,
-        fileName: res.sluggedTitle,
-      };
+      file.filePath = `${parserDirPath}/${file.metadata.slug}.json`;
+      return true;
     }
 
     // If character count >= 5000
     if (charCountExceeds) {
       // Create a folder in parser dir
-      fs.mkdirSync(`${parserDirPath}/${res.sluggedTitle}`, {
+      fs.mkdirSync(`${parserDirPath}/${file.metadata.slug}`, {
         recursive: true,
       });
 
@@ -81,24 +87,19 @@ async function mercuryParser(url) {
         i++;
         const chunk = contentArray.slice(start, end).join(" ");
         fs.writeFileSync(
-          `${parserDirPath}/${res.sluggedTitle}/${res.sluggedTitle}-part${i}.txt`,
+          `${parserDirPath}/${file.metadata.slug}/${file.metadata.slug}-part${i}.txt`,
           JSON.stringify(chunk)
         );
         start = end;
         end += mid;
       }
 
-      return {
-        success: true,
-        filePath: `${parserDirPath}/${res.sluggedTitle}`,
-        fileName: res.sluggedTitle,
-      };
+      file.filePath = `${parserDirPath}/${file.metadata.slug}`;
+      return true;
     }
   } catch (error) {
     console.log(error);
-    return {
-      success: false,
-    };
+    return false;
   }
 }
 

@@ -3,11 +3,19 @@ const mongoose = require("mongoose");
 const fileSchema = new mongoose.Schema(
   {
     sourceUrl: String,
+    metadata: {
+      title: String,
+      slug: String,
+      excerpt: String,
+      wordCount: Number,
+      charCount: Number,
+    },
     filePath: String,
     fileName: String,
     fileLink: String,
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     status: { type: String, enum: ["Completed", "Error", "Processing"] },
+    queue: { type: String, enum: ["Parser", "Audio", "Storage", "None"] },
   },
   { timestamps: true }
 );
