@@ -38,6 +38,7 @@ async function googleSpeech(file) {
         "../downloads",
         `${file.metadata.slug}.mp3`
       );
+      await file.save();
       return true;
     }
 
@@ -79,6 +80,7 @@ async function googleSpeech(file) {
         `Audio download complete. ${new Date().toLocaleString("en-SG")}`
       );
       file.filePath = `${downloadDirPath}/${file.metadata.slug}.mp3`;
+      await file.save();
       return true;
     }
 
@@ -129,9 +131,9 @@ async function googleSpeech(file) {
         `Audio download complete. ${new Date().toLocaleString("en-SG")}`
       );
       file.filePath = `${downloadDirPath}/${file.metadata.slug}.mp3`;
+      await file.save();
       return true;
     }
-    throw Error;
   } catch (error) {
     console.log(error);
     return false;

@@ -1,6 +1,4 @@
 require("dotenv").config();
-const fs = require("fs");
-const path = require("path");
 const { Storage } = require("@google-cloud/storage");
 const { GCP_CLIENT_EMAIL, GCP_PRIVATE_KEY, GCP_PROJECT_ID } = process.env;
 
@@ -16,16 +14,17 @@ const bucket = storage.bucket("flashcard-6ec1f.appspot.com");
 
 async function googleStorage(file) {
   try {
-    const destFileName = file.metadata.slug;
+    const destFileName = `${file.metadata.slug}.mp3`;
 
     const res = await bucket.upload(file.filePath, {
       destination: destFileName,
     });
+
     const { bucket: fileBucket, name: fileName } = res[0].metadata;
-    console.log(`${file.filePath} uploaded to google cloud storage`);
-    fs.writeFileSync("./data.json", JSON.stringify(res), { encoding: "utf-8" });
-    file.fileLink = `https://storage.cloud.google.com/${fileBucket}/${fileName}`;
-    console.log(`https://storage.cloud.google.com/${fileBucket}/${fileName}`);
+
+    file.fileLink = `https://storage.googleapis.com/${fileBucket}/${fileName}`;
+    console.log("File uploaded to GCP Storage");
+    await file.save();
     return true;
   } catch (error) {
     console.log(error);

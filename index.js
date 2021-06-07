@@ -1,7 +1,4 @@
 require("dotenv").config();
-const fs = require("fs"); //*
-const axios = require("axios"); //*
-const url = require("url");
 const express = require("express");
 const morgan = require("morgan");
 const colors = require("colors");
@@ -33,12 +30,11 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/auth", require("./routes/auth"));
-app.use("/action", require("./routes/action"));
-app.use("/profile", require("./routes/profile"));
+app.use("/user", require("./routes/user"));
 
 app.get("/", (req, res) => {
   if (req.isAuthenticated()) {
-    res.redirect(`/profile/${req.user._id}`);
+    res.redirect(`/user/${req.user._id}`);
   } else {
     res.render("index", { user: req.user });
   }
@@ -56,93 +52,73 @@ app.get("/logout", (req, res) => {
 
 // ====================== Process queues ==============================
 
-const {
-  File,
-  parserQueue,
-  audioQueue,
-  parserNode,
-  audioNode,
-  storageQueue,
-  storageNode,
-} = require("./config/classes");
 const { mercuryParser, googleSpeech, googleStorage } = require("./modules");
 
 const MongoFile = require("./config/mongoose/File");
 
+let parserBusy = false;
+let audioBusy = false;
+let storageBusy = false;
+
 setInterval(async () => {
-  while (parserQueue.length > 0 && parserNode.length === null) {
-    // dequeue from parser queue
-    const file = parserQueue.dequeue();
-    // push to parserNode
-    parserNode.push(file);
-    // pass into mercury parser
-    const parserSuccesss = await mercuryParser(file);
-    if (!parserSuccesss) {
-      file.status = "Error";
-    }
-    // update mongo file
-    const updatedMongoFile = await MongoFile.findByIdAndUpdate(
-      file.id,
-      {
-        ...file.mongo(),
-      },
-      { new: true }
-    );
-    // pop from parserNode
-    parserNode.pop();
-    // enqueue to audioQueue
-    audioQueue.enqueue(file);
+  if (parserBusy) return;
+  // get a file on parser queue from mongo
+  const file = await MongoFile.findOne({ queue: "Parser" });
+  if (!file) return;
+  // set parserbusy to true
+  parserBusy = true;
+  // pass into mercury parser
+  const parserSuccesss = await mercuryParser(file);
+  if (!parserSuccesss) {
+    file.status = "Error";
   }
+  // update mongo file
+  file.queue = "Audio";
+  await file.save();
+  // set parserbusy to false
+  parserBusy = false;
 }, 3000);
 
 setInterval(async () => {
-  while (audioQueue.length > 0 && audioNode.length === null) {
-    // dequeue from audio queue
-    const file = audioQueue.dequeue();
-    // push to audio node
-    audioNode.push(file);
-    // pass file into google speech
-    const synthSuccess = await googleSpeech(file);
-    if (!synthSuccess) {
-      file.status = "Error";
-    }
-    // update mongo file
-    const updatedMongoFile = await MongoFile.findByIdAndUpdate(
-      file.id,
-      { fileLink: file.fileLink, filePath: file.filePath },
-      { new: true }
-    );
-    // pop from audio node
-    audioNode.pop();
-    // enqueue to storageQueue
-    storageQueue.enqueue(file);
+  if (audioBusy) return;
+  // get a file on parser queue from mongo
+  const file = await MongoFile.findOne({ queue: "Audio" });
+  if (!file) return;
+  // set parserbusy to true
+  audioBusy = true;
+  // pass into mercury parser
+  const audioSuccess = await googleSpeech(file);
+  if (!audioSuccess) {
+    file.status = "Error";
   }
-}, 2000);
+  // update mongo file
+  file.queue = "Storage";
+  await file.save();
+  // set parserbusy to false
+  audioBusy = false;
+}, 5000);
 
 setInterval(async () => {
-  while (storageQueue.length > 0 && storageNode.length === null) {
-    // dequeue from storage queue
-    const file = storageQueue.dequeue();
-    // push to storage node
-    storageNode.push(file);
-    // pass file into google speech
-    const uploadSuccess = await googleStorage(file);
-    if (!uploadSuccess) {
-      file.status = "Error";
-    } else {
-      file.status = "Completed";
-    }
-    // update mongo file
-    const updatedMongoFile = await MongoFile.findByIdAndUpdate(
-      file.id,
-      {
-        status: file.status,
-      },
-      { new: true }
-    );
-    // pop from storage node
-    storageNode.pop();
+  if (storageBusy) return;
+  // get a file on parser queue from mongo
+  const file = await MongoFile.findOne({ queue: "Storage" });
+  if (!file) return;
+  // set storageBusy to true
+  storageBusy = true;
+  // pass into mercury parser
+  const storageSuccess = await googleStorage(file);
+  if (!storageSuccess) {
+    file.status = "Error";
+    await file.save();
   }
+  // update mongo file
+  if (storageSuccess) {
+    file.status = "Completed";
+    file.queue = "None";
+    await file.save();
+  }
+  // set storageBusy to false
+  storageBusy = false;
 }, 1000);
 
 // -====================================================
@@ -154,36 +130,3 @@ app.listen(PORT, () => {
     ` Server running in ${process.env.NODE_ENV} on ${PORT} `.green.bold.inverse
   );
 });
-
-// const googleSpeech = require("./modules/googlespeech");
-// const parser = require("./modules/mercuryparser");
-
-// /**
-//  * 1. Create a service account and project in Google Cloud Console
-//  * 2. Download the credentials to the service account and rename it to "key.json"
-//  * 3. Place the "keys.json" under /config folder
-//  * 4. Run 'npm run start https://www.exampleurl.com/1999/01/01/dotcom'
-//  *
-//  * @param {String} url Article url to be synthesized to audio
-//  * @returns Audioclip saved to 'downloads' folder under project root directory
-//  */
-
-// async function app(url) {
-//   try {
-//     const filePath = await parser(url);
-//     await googleSpeech(filePath);
-//   } catch (error) {
-//     if (error.code === "ERR_INVALID_URL") {
-//       console.error(
-//         "Error: To run the program, input 'npm run start (url)'.\n"
-//       );
-//       return;
-//     }
-//     console.log(error);
-//     return;
-//   }
-// }
-
-// if (typeof process.argv[2] === "string") {
-//   app(process.argv[2]);
-// }

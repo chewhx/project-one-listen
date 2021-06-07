@@ -5,14 +5,32 @@
     <%- include ("partials/navbar") %>
     <div class="container">
       <div class="row my-5">
-        <form
-          class="input-group col-12"
-          action="/action/enqueue"
-          method="POST"
-        >
+        <h3>Instructions:</h3>
+        <ol class="pl-4">
+          <li>
+            Submit url to a blog post or news article. Do not submit the same
+            article more than once.
+          </li>
+          <li>
+            Conversion will take place in the background. You may follow the
+            status of your article in the list below. This may take from a few
+            minutes to an hour, depending on the server.
+          </li>
+          <li>
+            In case of errors, or your article has not been converted after some
+            time, delete the item and try again.
+          </li>
+        </ol>
+        <form class="input-group form-row" action="/user/article" method="POST">
+          <label class="col-12" for="url">
+            <strong
+              >Note: This service does not endorse the distribution of
+              copyrighted materials. For personal use only.</strong
+            >
+          </label>
           <input
             type="text"
-            class="form-control"
+            class="form-control col-12"
             id="url"
             name="url"
             autocomplete="off"
@@ -20,65 +38,119 @@
           />
           <div class="input-group-append">
             <button class="input-group-text btn-outline-dark" type="submit">
-              Convert
+              Submit
             </button>
           </div>
         </form>
       </div>
 
-      <div class="row my-5">
+      <div class="row my-5 py-5">
         <div class="col-md-2">
-          <img src="<%- user.photo ? user.photo : `https://ui-avatars.com/api/?name=${user.name.split("").join("+")}` %>" alt="avatar-logo" class="img-fluid rounded-circle">
+          <img src="<%- user.photo ? user.photo :
+          `https://ui-avatars.com/api/?name=${user.name.split("").join("+")}`
+          %>" alt="avatar-logo" class="img-fluid rounded-circle">
         </div>
         <div class="col-md-6">
           <ul class="list-group list-group-flush">
+            <li class="list-group-item">Name: <%= user.name %></li>
+            <li class="list-group-item">Email: <%= user.email %></li>
             <li class="list-group-item">
-              Name: <%= user.name %>
-            </li>
-            <li class="list-group-item">
-              Email: <%= user.email %>
-            </li>
-            <li class="list-group-item">
-              Google Drive Access: <%- user.googleToken ? "Yes" : "No" %> 
+              Google Drive Access: <%- user.googleToken ? "Yes" : "No" %>
             </li>
           </ul>
-         
-
         </div>
       </div>
 
       <ul class="list-group list-group-flush">
-      <% for (let each of user.files) { %>
+        <% if (!user.files.length) { %>
+        <div class="alert alert-secondary" role="alert">
+          No articles attached to this profile...
+        </div>
+        <% } %> <% for (let each of user.files) { %>
         <li class="list-group-item">
           <div class="row">
             <div class="col-md-6">
-              <h4
-                class=" <% if (each.status === "Completed") { %>
-                 <% } else { %>
-                  text-color-grey
-                <% } %>"
-                href="<%= each.fileLink %>"
-                download="download clip"
-                >
-                <%- each.metadata.title ? each.metadata.title : each.fileName  %>
+              <h4>
+                <%- each.metadata.title ? each.metadata.title : each.fileName %>
               </h4>
-              <% if (each.status === "Completed") { %>
+              <div class="col-auto p-0 text-truncate">
+                <a href="<%= each.sourceUrl %>">
+                  <small> <%= each.sourceUrl %> </small>
+                </a>
+              </div>
+              <p>
+                <% if (each.status === "Completed") { %>
                 <small class="badge badge-success"><%= each.status %> </small>
                 <% } else if (each.status === "Error") { %>
-                  <small class="badge badge-danger"><%= each.status %> </small>
-                  <% } else if (each.status === "Processing") { %>
-                    <small class="badge badge-secondary"><%= each.status %> </small>
-                <% } else { %>
-              <% } %>
-              <small class="text-muted"><%= each.metadata.excerpt %> </small>
+                <small class="badge badge-danger"><%= each.status %> </small>
+                <% } else if (each.status === "Processing") { %>
+                <small class="badge badge-secondary"><%= each.status %> </small>
+                <% } else { %> <% } %>
+
+                <small class="text-muted"><%= each.metadata.excerpt %> </small>
+              </p>
             </div>
             <div class="col-md-6">
-              <a type="button" class="btn btn-link btn-sm col-md-2 disabled">Upload to Google Drive</a>
-              <a type="button" class="btn btn-link btn-sm col-md-2 <% if (each.status === "Completed") { %>
+              <div
+                class="row d-flex align-items-center justify-content-end mb-3"
+              >
+                <% if(each.fileLink) { %>
+                <audio controls>
+                  <source src="<%= each.fileLink %>" type="audio/mpeg" />
+                  Your browser does not support the audio element.
+                </audio>
+                <% } %>
+              </div>
+              <div class="row d-flex align-items-center justify-content-end">
+                <a class="btn btn-link btn-sm disabled">
+                  Upload to GDrive
+                  <span
+                    ><small class="badge badge-primary"
+                      >Coming soon</small
+                    ></span
+                  >
+                </a>
+
+                <% if (each.status !== "Completed") { %>
+                <a class="btn btn-link btn-sm disabled"> Download</a>
                 <% } else { %>
-                 disabled
-               <% } %>" href="<%= each.fileLink %>">Download</a>
-              <button type="button" class="btn btn-link btn-sm col-md-2">Delete</button>
+                <a class="btn btn-link btn-sm" href="<%= each.fileLink %>">
+                  Download</a
+                >
+                <% } %>
+                <button type="button" class="btn btn-link btn-sm">Email</button>
+                <button
+                  type="button"
+                  class="btn btn-link btn-sm"
+                  value="<%= each._id %>"
+                  onclick="setShowDeleteAlert(value)"
+                >
+                  Delete
+                </button>
+              </div>
+              <div
+                id="delete-modal-<%= each._id %>"
+                class="row d-flex align-items-center justify-content-end"
+                style="visibility: hidden"
+              >
+                <small>Are you sure? This cannot be undone.</small>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link"
+                  value="<%= each._id %>"
+                  onclick="deleteFile(value)"
+                >
+                  Yes
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link"
+                  value="<%= each._id %>"
+                  onclick="setShowDeleteAlert(value)"
+                >
+                  <strong> Cancel </strong>
+                </button>
+              </div>
             </div>
           </div>
         </li>
@@ -86,4 +158,20 @@
       </ul>
     </div>
   </body>
+  <script>
+    function setShowDeleteAlert(fileId) {
+      var modal = document.querySelector(`#delete-modal-${fileId}`);
+      if (modal.style.visibility === "hidden") {
+        modal.style.visibility = "visible";
+      } else {
+        modal.style.visibility = "hidden";
+      }
+    }
+    async function deleteFile(fileId) {
+      await fetch(`/user/article/${fileId}`, {
+        method: "DELETE",
+      });
+      window.location.reload();
+    }
+  </script>
 </html>

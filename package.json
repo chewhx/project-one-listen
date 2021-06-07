@@ -1,5 +1,5 @@
 {
-  "name": "project-audio-articles",
+  "name": "project-one-listen",
   "version": "1.0.0",
   "description": "Node JS application parses text from online articles and convert to audio.",
   "main": "index.js",
@@ -16,7 +16,9 @@
     "readitlater",
     "articleparser",
     "googlespeech",
-    "mercuryparser"
+    "mercuryparser",
+    "googlecloud",
+    "googlecloudstorage"
   ],
   "author": "chewhx",
   "license": "ISC",

@@ -28,7 +28,7 @@ async function mercuryParser(file) {
     // Count characters and add to response
     res.char_count = res.content.length;
     file.metadata.charCount = res.char_count;
-
+    await file.save();
     // Check if char count exceeds limit of 5000
     const charCountExceeds = res.char_count >= 5000;
 
@@ -47,12 +47,14 @@ async function mercuryParser(file) {
     if (dirExist) {
       console.log("Article has already been downloaded.");
       file.filePath = `${parserDirPath}/${file.metadata.slug}`;
+      await file.save();
       return true;
     }
 
     if (fileExist) {
       console.log("Article has already been downloaded.");
       file.filePath = `${parserDirPath}/${file.metadata.slug}.json`;
+      await file.save();
       return true;
     }
 
@@ -64,6 +66,7 @@ async function mercuryParser(file) {
         JSON.stringify(res)
       );
       file.filePath = `${parserDirPath}/${file.metadata.slug}.json`;
+      await file.save();
       return true;
     }
 
@@ -95,6 +98,7 @@ async function mercuryParser(file) {
       }
 
       file.filePath = `${parserDirPath}/${file.metadata.slug}`;
+      await file.save();
       return true;
     }
   } catch (error) {
