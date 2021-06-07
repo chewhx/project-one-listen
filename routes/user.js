@@ -11,7 +11,10 @@ const File = require("../config/classes/File");
 router.get("/:id", async (req, res) => {
   try {
     if (!req.isAuthenticated() || !req.user) {
-      res.render("error", { error: "none" });
+      res.render("error", {
+        error: "Please log in to proceed",
+        user: req.user,
+      });
     }
     const idMatch = req.user._id == req.params.id;
     const user = await MongoUser.findById(req.user._id).populate("files");
@@ -19,10 +22,14 @@ router.get("/:id", async (req, res) => {
       res.render("profile", { user });
     }
     if (!idMatch) {
-      res.render("error", { error: "none" });
+      res.render("error", {
+        error: `User ${id} does not exist`,
+        user: req.user,
+      });
     }
   } catch (error) {
     console.log(error);
+    res.render("error", { error, user: req.user });
   }
 });
 
@@ -48,7 +55,7 @@ router.post("/article", async (req, res) => {
     user.save();
     res.redirect(`/user/${req.user._id}`);
   } catch (error) {
-    res.status(400).render("error", { error });
+    res.status(400).render("error", { error, user: req.user });
   }
 });
 
@@ -70,7 +77,7 @@ router.delete("/article/:fileId", async (req, res) => {
     const updatedFile = await MongoFile.findByIdAndDelete(req.params.fileId);
     res.redirect(303, `/user/${req.user._id}`);
   } catch (error) {
-    res.render("error", { error });
+    res.render("error", { error, user: req.user });
   }
 });
 module.exports = router;

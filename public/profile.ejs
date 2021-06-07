@@ -111,6 +111,15 @@
                   >
                 </a>
 
+                <button type="button" class="btn btn-link btn-sm disabled">
+                  Email
+                  <span
+                    ><small class="badge badge-primary"
+                      >Coming soon</small
+                    ></span
+                  >
+                </button>
+
                 <% if (each.status !== "Completed") { %>
                 <a class="btn btn-link btn-sm disabled"> Download</a>
                 <% } else { %>
@@ -118,7 +127,6 @@
                   Download</a
                 >
                 <% } %>
-                <button type="button" class="btn btn-link btn-sm">Email</button>
                 <button
                   type="button"
                   class="btn btn-link btn-sm"

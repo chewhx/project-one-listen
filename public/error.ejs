@@ -2,8 +2,19 @@
 <html lang="en">
   <%- include ("partials/header") %>
   <body>
-    <h1>Error</h1>
-    <p><%= error %></p>
-    <a href="http://localhost:5000">Go back</a>
+    <%- include ("partials/navbar") %>
+    <div class="container text-center">
+      <img
+        src="https://image.freepik.com/free-vector/tiny-people-examining-operating-system-error-warning-web-page-isolated-flat-illustration_74855-11104.jpg"
+        alt="error-image"
+        class="img-fluid"
+      /><br />
+      <a class="small text-muted" href="https://www.freepik.com/vectors/people"
+        >Illustration from www.freepik.com</a
+      >
+      <h1 class="my-5">Error: <%= error %></h1>
+      <p class="text-muted">We've all been there.</p>
+      <a href="/" class="btn btn-link text-center">Go back</a>
+    </div>
   </body>
 </html>

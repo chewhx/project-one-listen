@@ -18,8 +18,6 @@ app.set("views", path.resolve(__dirname, "public"));
 const cookieSession = require("cookie-session");
 const passport = require("passport");
 
-express.static(path.resolve(__dirname, "public"));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
@@ -29,6 +27,7 @@ require("./config/passport/google");
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use("/static", express.static(path.resolve(__dirname, "public")));
 app.use("/auth", require("./routes/auth"));
 app.use("/user", require("./routes/user"));
 
@@ -41,6 +40,14 @@ app.get("/", (req, res) => {
 });
 
 //  ---------------------------------------------------------------------------------------
+//  @desc     Error page
+//  @route    GET  /error
+//  @access   Public
+app.get("/error", (req, res) => {
+  res.render("error", { error: "Hi", user: req.user });
+});
+
+//  ---------------------------------------------------------------------------------------
 //  @desc     Users log out
 //  @route    POST  /auth/logout
 //  @access   Public
@@ -48,6 +55,14 @@ app.get("/", (req, res) => {
 app.get("/logout", (req, res) => {
   req.logOut();
   res.redirect("/");
+});
+
+//  ---------------------------------------------------------------------------------------
+//  @desc     404
+//  @route    GET  *
+//  @access   Public
+app.get("*", (req, res) => {
+  res.render("404", { user: req.user });
 });
 
 // ====================== Process queues ==============================

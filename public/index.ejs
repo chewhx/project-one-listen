@@ -3,15 +3,23 @@
   <%- include ("partials/header") %>
   <body>
     <%- include ("partials/navbar") %>
-    <div class="container">
+    <div class="container py-4">
       <% var loading = false %>
+      <div class="text-center">
+        <img
+          class="rounded-circle w-25"
+          src="/static/images/icons/brand.png"
+          alt="brand-logo"
+        />
 
+        <p class="display-3">One Listen</p>
+        <h3>Convert web articles to mp3.</h3>
+      </div>
       <div class="card mx-auto my-5" style="width: 23rem">
         <div class="card-body">
-          <h2 class="card-title">
-            A web application which converts web articles into mp3.
-          </h2>
-          <p>Sign in to create a user account for saving your audio files.</p>
+          <h4 class="card-title">
+            Create an account to save and load your audio files.
+          </h4>
           <a class="btn btn-danger btn-block my-5" href="/auth/google">
             <span><i class="bi bi-google mr-3"></i></span> Sign in with Google
           </a>
@@ -24,4 +32,5 @@
       </div>
     </div>
   </body>
+  <%- include ("partials/footer") %>
 </html>
