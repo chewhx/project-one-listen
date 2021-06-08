@@ -1,7 +1,17 @@
+require("dotenv").config();
+const { Readable } = require("stream");
 const Mercury = require("@postlight/mercury-parser");
-const fs = require("fs");
-const path = require("path");
 const slug = require("../utils/slug");
+const { Storage } = require("@google-cloud/storage");
+
+const { GCP_CLIENT_EMAIL, GCP_PRIVATE_KEY, GCP_PROJECT_ID } = process.env;
+const bucket = new Storage({
+  credentials: {
+    client_email: GCP_CLIENT_EMAIL,
+    private_key: GCP_PRIVATE_KEY.replace(/\\n/gm, "\n"),
+  },
+  projectId: GCP_PROJECT_ID,
+}).bucket("flashcard-6ec1f.appspot.com");
 
 /**
  * For articles more than 5000 characters, it will be split up into parts of plain text in a folder. This is because Google Text-to-Speech API has a request limit of not more than 5000 characters per request.
@@ -11,10 +21,8 @@ const slug = require("../utils/slug");
  */
 async function mercuryParser(file) {
   try {
-    console.log("Processing text...");
-
-    // Declare path for 'parser' folder
-    const parserDirPath = path.resolve(__dirname, "../temp", "parser");
+    // Log
+    console.log(`Starting parser for ${file.sourceUrl}`);
 
     // Parse the text with Mercury
     const res = await Mercury.parse(file.sourceUrl, { contentType: "text" });
@@ -28,83 +36,66 @@ async function mercuryParser(file) {
     // Count characters and add to response
     res.char_count = res.content.length;
     file.metadata.charCount = res.char_count;
-    await file.save();
-    // Check if char count exceeds limit of 5000
-    const charCountExceeds = res.char_count >= 5000;
-
-    // Check if 'parser' folder exists, otherwise create one
-    if (!fs.existsSync(parserDirPath)) {
-      fs.mkdirSync(parserDirPath);
-    }
+    // await file.save();
 
     // Check if articles has already been downloaded in form of json or folder,
-    const fileExist = fs.existsSync(
-      `${parserDirPath}/${file.metadata.slug}.json`
-    );
+    // const fileExists = await bucket
+    //   .file(`/${file.user}/parser/${file.metadata.slug}`)
+    //   .exists();
 
-    const dirExist = fs.existsSync(`${parserDirPath}/${file.metadata.slug}`);
+    // if (fileExists) {
+    //   console.log("Article has already been downloaded.");
+    //   file.filePath = `${parserDirPath}/${file.metadata.slug}`;
+    //   await file.save();
+    //   return true;
+    // }
 
-    if (dirExist) {
-      console.log("Article has already been downloaded.");
-      file.filePath = `${parserDirPath}/${file.metadata.slug}`;
-      await file.save();
-      return true;
-    }
+    // Save the res in google cloud storage
+    const read = new Readable({
+      read() {},
+    });
 
-    if (fileExist) {
-      console.log("Article has already been downloaded.");
-      file.filePath = `${parserDirPath}/${file.metadata.slug}.json`;
-      await file.save();
-      return true;
-    }
+    const write = bucket
+      .file(`${file.user}/parser/${file.metadata.slug}`)
+      .createWriteStream({ metadata: { contentType: "application/json" } });
 
-    // If character count < 5000
-    if (!charCountExceeds) {
-      // Save response in temp folder
-      fs.writeFileSync(
-        `${parserDirPath}/${file.metadata.slug}.json`,
-        JSON.stringify(res)
-      );
-      file.filePath = `${parserDirPath}/${file.metadata.slug}.json`;
-      await file.save();
-      return true;
-    }
+    read.push(JSON.stringify(res));
+    read.push(null);
+    read
+      .pipe(write)
+      .on("finish", () => console.log("file uploaded"))
+      .on("error", (err) => console.log(err));
+    read.on("end", () => {
+      write.end();
+    });
+    // read.on("data", (chunk) => console.log(chunk));
 
-    // If character count >= 5000
-    if (charCountExceeds) {
-      // Create a folder in parser dir
-      fs.mkdirSync(`${parserDirPath}/${file.metadata.slug}`, {
-        recursive: true,
-      });
-
-      // Prep variables to execute split
-      let i = 0;
-      let contentArray = res.content.split(" ");
-      let parts = Math.ceil(res.char_count / 4999);
-      let start = 0;
-      let mid = Math.ceil(contentArray.length / parts);
-      let end = mid;
-
-      // Split the text into chunks and save as individual plain text files
-      while (i < parts) {
-        i++;
-        const chunk = contentArray.slice(start, end).join(" ");
-        fs.writeFileSync(
-          `${parserDirPath}/${file.metadata.slug}/${file.metadata.slug}-part${i}.txt`,
-          JSON.stringify(chunk)
-        );
-        start = end;
-        end += mid;
-      }
-
-      file.filePath = `${parserDirPath}/${file.metadata.slug}`;
-      await file.save();
-      return true;
-    }
+    return true;
   } catch (error) {
     console.log(error);
     return false;
   }
 }
+
+mercuryParser({
+  sourceUrl:
+    "https://www.nytimes.com/2021/06/06/insider/new-york-mayor-candidates-videos.html",
+  metadata: {
+    title: "",
+    slug: "",
+    excerpt: "",
+    wordCount: 0,
+    charCount: 0,
+  },
+  filePath:
+    "/Users/chewhx/github/project-audio-articles/downloads/hsbc-says-asia-pacific-ceo-peter-wong-to-retire.mp3",
+  fileName:
+    "-news-business-hsbc-says-asia-pacific-ceo-peter-wong-to-retire-14965358",
+  fileLink:
+    "https://storage.googleapis.com/flashcard-6ec1f.appspot.com/hsbc-says-asia-pacific-ceo-peter-wong-to-retire.mp3",
+  status: "Completed",
+  user: "60b7a045e340385fe319fbc8",
+  queue: "None",
+});
 
 module.exports = mercuryParser;

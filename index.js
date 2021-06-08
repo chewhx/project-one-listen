@@ -49,7 +49,7 @@ app.get("/error", (req, res) => {
 
 //  ---------------------------------------------------------------------------------------
 //  @desc     Users log out
-//  @route    POST  /auth/logout
+//  @route    POST  /logout
 //  @access   Public
 
 app.get("/logout", (req, res) => {

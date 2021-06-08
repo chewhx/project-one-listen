@@ -5,46 +5,30 @@ const { Storage } = require("@google-cloud/storage");
 const textToSpeech = require("@google-cloud/text-to-speech");
 const { GCP_CLIENT_EMAIL, GCP_PRIVATE_KEY, GCP_PROJECT_ID } = process.env;
 const Mercury = require("@postlight/mercury-parser");
-const { content } = require("googleapis/build/src/apis/content");
+const slug = require("./utils/slug");
+const { Writable } = require("stream");
 
-const storage = new Storage({
+const bucket = new Storage({
   credentials: {
     client_email: GCP_CLIENT_EMAIL,
     private_key: GCP_PRIVATE_KEY.replace(/\\n/gm, "\n"),
   },
   projectId: GCP_PROJECT_ID,
-});
-
-const bucket = storage.bucket("flashcard-6ec1f.appspot.com");
-
-// folder.exists((err, exists) => {
-//   if (err) {
-//     console.log(err);
-//   } else {
-//     console.log(exists);
-//   }
-// });
-
-const url =
-  "https://www.channelnewsasia.com/news/singapore/exercise-mask-high-intensity-fitness-experts-advice-covid-19-14933524";
-
-// gcsGetFile({ filePath: "parser/text.json" });
+}).bucket("flashcard-6ec1f.appspot.com");
 
 function gcsFileExist(file) {
-  bucket.file(file.filePath).exists((err, exists) => {
-    if (err) {
-      console.log(err);
-      return false;
-    } else {
-      console.log(exists);
-      return true;
-    }
-  });
+  bucket
+    .file(`${file.user}/parser/${file.metadata.slug}`)
+    .exists((err, exists) => {
+      if (err) {
+        console.log(err);
+        return false;
+      } else {
+        console.log(exists);
+        return true;
+      }
+    });
 }
-
-gcsuploadFile(
-  "People with an underlying condition affecting their heart and lungs should be especially cautious when doing more intense exercises with a mask on, said Dr O'Muircheartaigh, who is also the medical director of Sports Medicine Lab."
-);
 
 async function gcsuploadFile(content) {
   try {
@@ -101,48 +85,60 @@ async function gcsuploadFile(content) {
   }
 }
 
-function gcsGetFile(file) {
-  // const writableStream = new Stream.Writable();
-  // writableStream._write = (chunk, encoding, next) => {
-  //   console.log(chunk);
-  //   next();
-  // };
-  let box = [];
-  bucket
-    .file(file.filePath)
-    .createReadStream()
-    .on("error", function (err) {
-      console.log(err);
-    })
-    .on("response", function (response) {
-      // Server connected and responded with the specified status and headers.
-    })
-    .on("data", (data) => {
-      box.push(data);
-    })
-    .on("end", function () {
-      const contents = JSON.parse(Buffer.concat(box).toString());
-      console.log(contents.title);
-      // The file is fully downloaded.
-    });
+async function gcsGetFile(file) {
+  // let content = [];
+  // const write = new Writable({
+  //   write() {},
+  // });
+
+  const [res] = await bucket
+    .file(`${file.user}/parser/${file.metadata.slug}`)
+    .download();
+  console.log(JSON.parse(res.toString()));
+  // (err, content) => {
+  //   if (err) console.log(err);
+  //   console.log(content.toString());
+  // }
+
+  // read
+  //   .on("error", function (err) {
+  //     console.log(err);
+  //   })
+  //   .on("response", function (response) {
+  //     // Server connected and responded with the specified status and headers.
+  //   })
+  //   .on("data", (chunk) => write.write(chunk))
+  //   .on("end", function () {
+  //     write.end();
+  //     // console.log(write._writableState);
+  //     console.log("Json read finish");
+  //     let box;
+  //     for (let each of write._writableState.buffered) {
+  //       content.push(each.chunk);
+  //     }
+  //     content = Buffer.concat(content);
+  //     console.log(JSON.parse(content.toString()));
+  //   })
+  //   .pipe(write);
 }
 
-// (async () => {
-//   const res = await Mercury.parse(url, { contentType: "text" });
-//   const folder = bucket.file("parser/text.json");
-//   folder.save(
-//     JSON.stringify(res),
-//     {
-//       metadata: {
-//         contentType: "text/json",
-//       },
-//     },
-//     (err) => {
-//       if (err) {
-//         console.log(err);
-//       } else {
-//         console.log("uploaded");
-//       }
-//     }
-//   );
-// })();
+gcsGetFile({
+  sourceUrl:
+    "https://www.nytimes.com/2021/06/06/insider/new-york-mayor-candidates-videos.html",
+  metadata: {
+    title: "",
+    slug: "hsbc-says-asia-pacific-ceo-peter-wong-to-retire",
+    excerpt: "",
+    wordCount: 0,
+    charCount: 0,
+  },
+  filePath:
+    "/Users/chewhx/github/project-audio-articles/downloads/hsbc-says-asia-pacific-ceo-peter-wong-to-retire.mp3",
+  fileName:
+    "-news-business-hsbc-says-asia-pacific-ceo-peter-wong-to-retire-14965358",
+  fileLink:
+    "https://storage.googleapis.com/flashcard-6ec1f.appspot.com/hsbc-says-asia-pacific-ceo-peter-wong-to-retire.mp3",
+  status: "Completed",
+  user: "60b7a045e340385fe319fbc8",
+  queue: "None",
+});
