@@ -2,6 +2,8 @@ const router = require("express").Router();
 const MongoUser = require("../config/mongoose/User");
 const MongoFile = require("../config/mongoose/File");
 const File = require("../config/classes/File");
+const uploadToGoogleDrive = require("../modules/googleDrive");
+const { deleteFile } = require("../modules/googleStorage");
 
 //  ---------------------------------------------------------------------------------------
 //  @desc     User profile page
@@ -17,7 +19,10 @@ router.get("/:id", async (req, res) => {
       });
     }
     const idMatch = req.user._id == req.params.id;
-    const user = await MongoUser.findById(req.user._id).populate("files");
+    const user = await MongoUser.findById(req.user._id).populate({
+      path: "files",
+      options: { sort: "-createdAt" },
+    });
     if (req.isAuthenticated() && idMatch) {
       res.render("profile", { user });
     }
@@ -60,6 +65,26 @@ router.post("/article", async (req, res) => {
 });
 
 //  ---------------------------------------------------------------------------------------
+//  @desc     Upload article audio to gdrive
+//  @route    POST  /user/article/upload/:fileId
+//  @access   Private
+
+router.post("/article/upload/:fileId", async (req, res) => {
+  try {
+    // console.log(req.user);
+    // console.log(req.params.fileId);
+    // res.status(200);
+    const file = await MongoFile.findById(req.params.fileId);
+    const uploadSuccess = await uploadToGoogleDrive(file, req.user);
+    if (uploadSuccess) {
+      res.status(200).redirect(`/user/${req.user.id}`);
+    }
+  } catch (error) {
+    res.render("error", { error });
+  }
+});
+
+//  ---------------------------------------------------------------------------------------
 //  @desc     Delete an article from user profile
 //  @route    DELETE  /user/article/:fileId
 //  @access   Private
@@ -67,14 +92,27 @@ router.post("/article", async (req, res) => {
 router.delete("/article/:fileId", async (req, res) => {
   try {
     if (!req.isAuthenticated()) throw Error;
-    const updatedUser = await MongoUser.findByIdAndUpdate(
+
+    // Pull from files array, decrease filesLength
+    await MongoUser.findByIdAndUpdate(
       req.user._id,
       {
         $pull: { files: req.params.fileId },
+        $inc: { filesLength: -1 },
       },
       { new: true }
     );
-    const updatedFile = await MongoFile.findByIdAndDelete(req.params.fileId);
+
+    // Find find from db
+    const file = await MongoFile.findById(req.params.fileId);
+
+    // Delete file from Google Cloud Storage
+    await deleteFile(file);
+
+    // Delete file from db
+    await file.remove();
+    await file.save();
+
     res.redirect(303, `/user/${req.user._id}`);
   } catch (error) {
     res.render("error", { error, user: req.user });

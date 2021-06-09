@@ -15,6 +15,15 @@ passport.use(
       const userExist = await User.findOne({ googleId: googleId });
 
       if (userExist) {
+        userExist.googleToken = {
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          scope:
+            "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/drive.file openid https://www.googleapis.com/auth/userinfo.email",
+          token_type: "Bearer",
+          expiry_date: Date.now() + 1000 * 60 * 60,
+        };
+        await userExist.save();
         return done(null, userExist);
       }
       // ============

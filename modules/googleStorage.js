@@ -12,24 +12,18 @@ const storage = new Storage({
 
 const bucket = storage.bucket("flashcard-6ec1f.appspot.com");
 
-async function googleStorage(file) {
+exports.deleteFile = async (file) => {
   try {
-    const destFileName = `${file.metadata.slug}.mp3`;
-
-    const res = await bucket.upload(file.filePath, {
-      destination: destFileName,
-    });
-
-    const { bucket: fileBucket, name: fileName } = res[0].metadata;
-
-    file.fileLink = `https://storage.googleapis.com/${fileBucket}/${fileName}`;
-    console.log("File uploaded to GCP Storage");
-    await file.save();
-    return true;
+    // Delete mp3
+    bucket
+      .file(`${file.user}/audio/${file.metadata.slug}`)
+      .delete((err, res) => {
+        if (!err) {
+          console.log("file deleted from gcs");
+        }
+      });
   } catch (error) {
     console.log(error);
     return false;
   }
-}
-
-module.exports = googleStorage;
+};

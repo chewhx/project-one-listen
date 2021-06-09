@@ -108,15 +108,6 @@
                 <% } %>
               </div>
               <div class="row d-flex align-items-center justify-content-end">
-                <a class="btn btn-link btn-sm disabled">
-                  Upload to GDrive
-                  <span
-                    ><small class="badge badge-primary"
-                      >Coming soon</small
-                    ></span
-                  >
-                </a>
-
                 <button type="button" class="btn btn-link btn-sm disabled">
                   Email
                   <span
@@ -124,6 +115,14 @@
                       >Coming soon</small
                     ></span
                   >
+                </button>
+
+                <button
+                  class="btn btn-link btn-sm"
+                  value="<%= each._id %> "
+                  onclick="uploadToGDrive(value)"
+                >
+                  Upload to GDrive
                 </button>
 
                 <% if (each.status !== "Completed") { %>
@@ -172,6 +171,7 @@
       </ul>
     </div>
   </body>
+
   <script>
     function setShowDeleteAlert(fileId) {
       var modal = document.querySelector(`#delete-modal-${fileId}`);
@@ -184,6 +184,13 @@
     async function deleteFile(fileId) {
       await fetch(`/user/article/${fileId}`, {
         method: "DELETE",
+      });
+      window.location.reload();
+    }
+
+    async function uploadToGDrive(fileId) {
+      await fetch(`/user/article/upload/${fileId}`, {
+        method: "POST",
       });
       window.location.reload();
     }
