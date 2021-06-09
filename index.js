@@ -67,13 +67,12 @@ app.get("*", (req, res) => {
 
 // ====================== Process queues ==============================
 
-const { mercuryParser, googleSpeech, googleStorage } = require("./modules");
+const { mercuryParser, googleSpeech } = require("./modules");
 
 const MongoFile = require("./config/mongoose/File");
 
 let parserBusy = false;
 let audioBusy = false;
-let storageBusy = false;
 
 setInterval(async () => {
   if (parserBusy) return;
@@ -107,34 +106,14 @@ setInterval(async () => {
     file.status = "Error";
   }
   // update mongo file
-  file.queue = "Storage";
+  file.queue = "None";
+  file.status = "Completed";
+  file.fileUrl = `https://storage.googleapis.com/flashcard-6ec1f.appspot.com/${file.user}/audio/${file.metadata.slug}`;
+
   await file.save();
   // set parserbusy to false
   audioBusy = false;
 }, 5000);
-
-setInterval(async () => {
-  if (storageBusy) return;
-  // get a file on parser queue from mongo
-  const file = await MongoFile.findOne({ queue: "Storage" });
-  if (!file) return;
-  // set storageBusy to true
-  storageBusy = true;
-  // pass into mercury parser
-  const storageSuccess = await googleStorage(file);
-  if (!storageSuccess) {
-    file.status = "Error";
-    await file.save();
-  }
-  // update mongo file
-  if (storageSuccess) {
-    file.status = "Completed";
-    file.queue = "None";
-    await file.save();
-  }
-  // set storageBusy to false
-  storageBusy = false;
-}, 1000);
 
 // -====================================================
 

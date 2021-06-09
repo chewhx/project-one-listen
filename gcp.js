@@ -7,6 +7,7 @@ const { GCP_CLIENT_EMAIL, GCP_PRIVATE_KEY, GCP_PROJECT_ID } = process.env;
 const Mercury = require("@postlight/mercury-parser");
 const slug = require("./utils/slug");
 const { Writable } = require("stream");
+const { Console } = require("console");
 
 const bucket = new Storage({
   credentials: {
@@ -16,18 +17,21 @@ const bucket = new Storage({
   projectId: GCP_PROJECT_ID,
 }).bucket("flashcard-6ec1f.appspot.com");
 
-function gcsFileExist(file) {
-  bucket
+async function gcsFileExist(file) {
+  const [exists] = await bucket
     .file(`${file.user}/parser/${file.metadata.slug}`)
-    .exists((err, exists) => {
-      if (err) {
-        console.log(err);
-        return false;
-      } else {
-        console.log(exists);
-        return true;
-      }
-    });
+    .exists();
+  console.log(exists);
+
+  // ((err, exists) => {
+  //   if (err) {
+  //     console.log(err);
+  //     return false;
+  //   } else {
+  //     console.log(exists);
+  //     return true;
+  //   }
+  // });
 }
 
 async function gcsuploadFile(content) {
@@ -91,10 +95,20 @@ async function gcsGetFile(file) {
   //   write() {},
   // });
 
+  // download parsed content from google cloud storage bucket
   const [res] = await bucket
     .file(`${file.user}/parser/${file.metadata.slug}`)
     .download();
-  console.log(JSON.parse(res.toString()));
+
+  const json = JSON.parse(res.toString());
+
+  // check character count
+  const charCountExceeds = json.char_count >= 5000;
+
+  //  charCountExceeds = false, send text for synth
+
+  //  charCountExceeds = true, split text into chunks and send for synth
+
   // (err, content) => {
   //   if (err) console.log(err);
   //   console.log(content.toString());
@@ -122,7 +136,7 @@ async function gcsGetFile(file) {
   //   .pipe(write);
 }
 
-gcsGetFile({
+gcsFileExist({
   sourceUrl:
     "https://www.nytimes.com/2021/06/06/insider/new-york-mayor-candidates-videos.html",
   metadata: {

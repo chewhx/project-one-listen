@@ -1,17 +1,45 @@
 require("dotenv").config();
 const textToSpeech = require("@google-cloud/text-to-speech");
-const fs = require("fs");
-const path = require("path");
+const { Storage } = require("@google-cloud/storage");
+const splitText = require("../utils/splitText");
 
 const { GCP_CLIENT_EMAIL, GCP_PRIVATE_KEY, GCP_PROJECT_ID } = process.env;
 
-const client = new textToSpeech.TextToSpeechClient({
+const speechClient = new textToSpeech.TextToSpeechClient({
   credentials: {
     client_email: GCP_CLIENT_EMAIL,
     private_key: GCP_PRIVATE_KEY.replace(/\\n/gm, "\n"),
   },
   projectId: GCP_PROJECT_ID,
 });
+
+const bucket = new Storage({
+  credentials: {
+    client_email: GCP_CLIENT_EMAIL,
+    private_key: GCP_PRIVATE_KEY.replace(/\\n/gm, "\n"),
+  },
+  projectId: GCP_PROJECT_ID,
+}).bucket("flashcard-6ec1f.appspot.com");
+
+async function synthText(textContent) {
+  try {
+    if (!textContent || typeof textContent !== "string") return undefined;
+    const request = {
+      input: { text: textContent },
+      voice: {
+        languageCode: "en-US",
+        ssmlGender: "FEMALE",
+        voiceName: "en-US-Standard-F",
+      },
+      audioConfig: { audioEncoding: "MP3" },
+    };
+
+    const [response] = await await speechClient.synthesizeSpeech(request);
+    return response.audioContent;
+  } catch (error) {
+    return error;
+  }
+}
 
 /**
  *
@@ -23,116 +51,81 @@ async function googleSpeech(file) {
   try {
     console.log(`Synthesizing audio clip...`);
 
-    // Declare path to 'downloads' folder
-    const downloadDirPath = path.resolve(__dirname, "../downloads");
+    // Declare function MP3 file path
+    const FILEPATH = `${file.user}/audio/${file.metadata.slug}`;
 
     // Check if audio file already exists
-    const audioFileExists = fs.existsSync(
-      path.resolve(__dirname, "../downloads", `${file.metadata.slug}.mp3`)
-    );
+    const [audioFileExists] = await bucket.file(FILEPATH).exists();
 
     if (audioFileExists) {
       console.log("Audio file already downloaded.");
-      file.filePath = path.resolve(
-        __dirname,
-        "../downloads",
-        `${file.metadata.slug}.mp3`
-      );
+      file.filePath = FILEPATH;
       await file.save();
       return true;
     }
 
-    // Check if file path is a file or directory: https://www.technicalkeeda.com/nodejs-tutorials/how-to-check-if-path-is-file-or-directory-using-nodejs
+    // Read JSON from google cloud storage
+    const [res] = await bucket
+      .file(`${file.user}/parser/${file.metadata.slug}`)
+      .download();
 
-    const isDirectory = fs.statSync(file.filePath).isDirectory();
-    const isFile = fs.statSync(file.filePath).isFile();
+    const json = JSON.parse(res.toString());
 
-    if (isFile) {
-      // Read JSON from file
-      const parsedContent = JSON.parse(
-        fs.readFileSync(file.filePath, { encoding: "utf-8" })
-      );
+    // check character count
+    const charCountExceeds = json.char_count >= 5000;
 
+    // create write stream for google cloud storage
+    const gcsWritable = bucket.file(FILEPATH).createWriteStream({
+      metadata: {
+        contentType: "audio/mpeg",
+      },
+    });
+
+    //  charCountExceeds = false, send text for synth
+
+    if (!charCountExceeds) {
       // Extract content to be converted
-      const { content } = parsedContent;
+      const { content } = json;
 
-      // Create a request
-      const request = {
-        input: { text: content },
-        voice: {
-          languageCode: "en-US",
-          ssmlGender: "FEMALE",
-          voiceName: "en-US-Standard-F",
-        },
-        audioConfig: { audioEncoding: "MP3" },
-      };
+      // Synth text
+      const audio = await synthText(content);
 
-      // Send request to synthesize speech
-      const [response] = await client.synthesizeSpeech(request);
+      // Write the response to google cloud storage
 
-      // Write the response to one audio file
-      fs.writeFileSync(
-        `${downloadDirPath}/${file.metadata.slug}.mp3`,
-        response.audioContent,
-        "binary"
+      const uploadRes = gcsWritable._write(audio, "binary");
+
+      gcsWritable.end(() =>
+        console.log(
+          `Audio download complete. ${new Date().toLocaleString("en-SG")}`
+        )
       );
-      console.log(
-        `Audio download complete. ${new Date().toLocaleString("en-SG")}`
-      );
-      file.filePath = `${downloadDirPath}/${file.metadata.slug}.mp3`;
+
+      file.filePath = FILEPATH;
       await file.save();
       return true;
     }
 
-    if (isDirectory) {
-      // Read the files from the directory
-      const filesInFilePath = fs.readdirSync(file.filePath);
+    //  charCountExceeds = true, split text into chunks and send for synth
 
-      // Create write stream
-      const write = fs.createWriteStream(
-        `${downloadDirPath}/${file.metadata.slug}.mp3`,
-        { encoding: "binary" }
-      );
+    if (charCountExceeds) {
+      // split text into chunks and append to array
+      const { content, char_count } = json;
+      const chunks = splitText(content, char_count);
 
-      // For each file in the directory
-      for (let each of filesInFilePath) {
-        // Extract the text content
-        if (path.extname(each) === ".txt") {
-          const eachFilePath = path.resolve(
-            __dirname,
-            "../temp",
-            "parser",
-            file.metadata.slug,
-            each
-          );
-          const content = fs.readFileSync(eachFilePath, { encoding: "utf-8" });
-
-          // Create a request
-          const request = {
-            input: { text: content },
-            voice: {
-              languageCode: "en-US",
-              ssmlGender: "FEMALE",
-              voiceName: "en-US-Standard-F",
-            },
-            audioConfig: { audioEncoding: "MP3" },
-          };
-
-          // Send request to synthesize speech
-          const [response] = await client.synthesizeSpeech(request)
-
-          // Write the response to the writable stream
-          write.write(response.audioContent);
-        }
+      for (let each of chunks) {
+        const audio = await synthText(each);
+        gcsWritable._write(audio, "binary", (err) => {
+          if (err) console.log(err);
+        });
       }
 
-      write.close();
-      console.log(
-        `Audio download complete. ${new Date().toLocaleString("en-SG")}`
+      gcsWritable.end(() =>
+        console.log(
+          `charCountExceeds end \n Audio download complete. ${new Date().toLocaleString(
+            "en-SG"
+          )}`
+        )
       );
-      file.filePath = `${downloadDirPath}/${file.metadata.slug}.mp3`;
-      await file.save();
-      return true;
     }
   } catch (error) {
     console.log(error);

@@ -77,25 +77,4 @@ async function mercuryParser(file) {
   }
 }
 
-mercuryParser({
-  sourceUrl:
-    "https://www.nytimes.com/2021/06/06/insider/new-york-mayor-candidates-videos.html",
-  metadata: {
-    title: "",
-    slug: "",
-    excerpt: "",
-    wordCount: 0,
-    charCount: 0,
-  },
-  filePath:
-    "/Users/chewhx/github/project-audio-articles/downloads/hsbc-says-asia-pacific-ceo-peter-wong-to-retire.mp3",
-  fileName:
-    "-news-business-hsbc-says-asia-pacific-ceo-peter-wong-to-retire-14965358",
-  fileLink:
-    "https://storage.googleapis.com/flashcard-6ec1f.appspot.com/hsbc-says-asia-pacific-ceo-peter-wong-to-retire.mp3",
-  status: "Completed",
-  user: "60b7a045e340385fe319fbc8",
-  queue: "None",
-});
-
 module.exports = mercuryParser;
