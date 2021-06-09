@@ -108,7 +108,7 @@ setInterval(async () => {
   // update mongo file
   file.queue = "None";
   file.status = "Completed";
-  file.fileUrl = `https://storage.googleapis.com/flashcard-6ec1f.appspot.com/${file.user}/audio/${file.metadata.slug}`;
+  file.fileLink = `https://storage.googleapis.com/flashcard-6ec1f.appspot.com/${file.user}/audio/${file.metadata.slug}`;
 
   await file.save();
   // set parserbusy to false
