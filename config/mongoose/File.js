@@ -14,8 +14,16 @@ const fileSchema = new mongoose.Schema(
     fileName: String,
     fileLink: String,
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    status: { type: String, enum: ["Completed", "Error", "Processing"] },
-    queue: { type: String, enum: ["Parser", "Audio", "Storage", "None"] },
+    status: {
+      type: String,
+      default: "Processing",
+      enum: ["Completed", "Error", "Processing"],
+    },
+    queue: {
+      type: String,
+      default: "Parser",
+      enum: ["Parser", "Audio", "None"],
+    },
   },
   { timestamps: true }
 );

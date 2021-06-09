@@ -25,22 +25,10 @@ router.get(
 //  ---------------------------------------------------------------------------------------
 //  @desc     Google OAuth redirect
 //  @route    GET  /auth/google/callback
-//  @access   Private
+//  @access   Public
 
-router.get(
-  "/google/callback",
-  passport.authenticate("google"),
-  async (req, res) => {
-    const userExist = await User.findOne({ googleId: req.user.googleId });
-
-    if (!userExist.googleToken.access_token) {
-      const { tokens: googleToken } = await getNewToken(req.query.code);
-      userExist.googleToken = googleToken;
-      await userExist.save();
-    }
-
-    res.redirect("/");
-  }
-);
+router.get("/google/callback", passport.authenticate("google"), (req, res) => {
+  res.redirect("/");
+});
 
 module.exports = router;

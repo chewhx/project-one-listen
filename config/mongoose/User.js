@@ -15,7 +15,6 @@ const userSchema = new mongoose.Schema(
       expiry_date: Number,
     },
     filesQuota: { type: Number, default: 10 },
-    filesLength: { type: Number, default: 0 },
     files: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
   },
   {

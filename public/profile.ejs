@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <%- include ("partials/header") %>
+
   <body>
     <%- include ("partials/navbar") %>
-    <div class="container">
+    <div class="container" style="min-height: 120vh">
       <div class="row my-5">
         <div class="col px-5">
           <h3>Instructions:</h3>
@@ -22,11 +23,7 @@
               some time, delete the item and try again.
             </li>
           </ol>
-          <form
-            class="input-group form-row"
-            action="/user/article"
-            method="POST"
-          >
+          <form class="input-group form-row" action="/file" method="POST">
             <label class="col-12" for="url">
               <strong
                 >Note: This service does not endorse the distribution of
@@ -60,6 +57,26 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item">Name: <%= user.name %></li>
             <li class="list-group-item">Email: <%= user.email %></li>
+            <li class="list-group-item">
+              Files Limit: <%= user.files.length %> / <%= user.filesQuota %>
+              <span>
+                <i
+                  class="
+                    <%-
+                    user.files.length
+                    ===
+                    10
+                    ?
+                    `bi
+                    bi-exclamation-triangle-fill
+                    text-warning`
+                    :
+                    null
+                    %>
+                  "
+                ></i>
+              </span>
+            </li>
             <li class="list-group-item">
               Google Drive Access: <%- user.googleToken ? "Yes" : "No" %>
             </li>
@@ -101,13 +118,40 @@
                 class="row d-flex align-items-center justify-content-end mb-3"
               >
                 <% if(each.fileLink) { %>
-                <audio controls>
+                <audio id="player-<%= each._id %>" controls>
                   <source src="<%= each.fileLink %>" type="audio/mpeg" />
                   Your browser does not support the audio element.
                 </audio>
                 <% } %>
+                <div class="btn-group" role="group" aria-label="Basic example">
+                  <button
+                    class="btn btn-sm btn-link"
+                    type="button"
+                    value="<%= each._id %>"
+                    onclick="setPlaybackSpeed(value, 1.0)"
+                  >
+                    <strong> 1x </strong>
+                  </button>
+                <div class="btn-group" role="group" aria-label="Basic example">
+                  <button
+                    class="btn btn-sm btn-link"
+                    type="button"
+                    value="<%= each._id %>"
+                    onclick="setPlaybackSpeed(value, 1.5)"
+                  >
+                    <strong> 1.5x </strong>
+                  </button>
+                  <button
+                    class="btn btn-sm btn-link"
+                    type="button"
+                    value="<%= each._id %>"
+                    onclick="setPlaybackSpeed(value, 2.0)"
+                  >
+                    <strong> 2x </strong>
+                  </button>
+                </div>
               </div>
-              <div class="row d-flex align-items-center justify-content-end">
+              <div class="row d-flex align-items-center justify-content-end mt-3">
                 <button type="button" class="btn btn-link btn-sm disabled">
                   Email
                   <span
@@ -170,7 +214,29 @@
         <% } %>
       </ul>
     </div>
+    <div
+      class="alert alert-warning alert-dismissible fade show fixed-bottom"
+      style="visibility: hidden"
+      role="alert"
+      id="alert-modal"
+    >
+      <p>
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Inventore
+        esse, ut autem accusantium soluta, repellat nostrum quidem dolorem
+        officia quam laudantium unde dignissimos deleniti, consequatur voluptas
+        consequuntur sunt voluptatibus aliquam?
+      </p>
+      <button
+        type="button"
+        class="close"
+        data-dismiss="alert"
+        aria-label="Close"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
   </body>
+  <%- include ("partials/footer") %>
 
   <script>
     function setShowDeleteAlert(fileId) {
@@ -182,17 +248,33 @@
       }
     }
     async function deleteFile(fileId) {
-      await fetch(`/user/article/${fileId}`, {
+      await fetch(`/file/${fileId}`, {
         method: "DELETE",
       });
       window.location.reload();
     }
 
     async function uploadToGDrive(fileId) {
-      await fetch(`/user/article/upload/${fileId}`, {
+      const res = await fetch(`/user/upload/${fileId}`, {
         method: "POST",
       });
-      window.location.reload();
+      if (res.status === 200) {
+        setAlert("File Uploaded");
+      } else {
+        setAlert("Error uploding file");
+      }
+      // window.location.reload();
+    }
+
+    function setPlaybackSpeed(playerId, speed) {
+      document.querySelector(`#player-${playerId}`).playbackRate = speed;
+    }
+
+    function setAlert(message) {
+      var alert = document.querySelector("#alert-modal");
+      alert.style.visibility = "visible";
+      var p = document.querySelector("#alert-modal > p");
+      p.innerText = message;
     }
   </script>
 </html>

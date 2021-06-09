@@ -1,5 +1,4 @@
 require("dotenv").config();
-const fs = require("fs");
 const Stream = require("stream");
 const { Storage } = require("@google-cloud/storage");
 const { google } = require("googleapis");
@@ -46,7 +45,7 @@ async function uploadToGoogleDrive(file, user) {
     read.push(res, "binary");
     read.push(null);
 
-    drive.files.create(
+    const response = await drive.files.create(
       {
         requestBody: {
           name: `${file.metadata.slug}.mp3`,
@@ -57,15 +56,26 @@ async function uploadToGoogleDrive(file, user) {
           body: read,
         },
         fields: "id",
-      },
-      (err, file) => {
-        if (!err) {
-          return true;
-        }
       }
+      // (err, file) => {
+      //   if (err) {
+      //     console.log(err);
+      //     return false;
+      //   }
+      //   if (file) {
+      //     console.log(file);
+      //     return true;
+      //   }
+      // }
     );
+    console.log(response.status);
+    if (response.status === 200) {
+      return true;
+    }
+    return false;
   } catch (error) {
     console.log(error);
+    return false;
   }
 }
 

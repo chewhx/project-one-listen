@@ -30,6 +30,7 @@ app.use(passport.session());
 app.use("/static", express.static(path.resolve(__dirname, "public")));
 app.use("/auth", require("./routes/auth"));
 app.use("/user", require("./routes/user"));
+app.use("/file", require("./routes/file"));
 
 app.get("/", (req, res) => {
   if (req.isAuthenticated()) {
