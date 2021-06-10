@@ -14,6 +14,12 @@ const userSchema = new mongoose.Schema(
       id_token: String,
       expiry_date: Number,
     },
+    limits: {
+      perDayUsed: Number,
+      perDayLimit: { type: Number, default: 5 },
+      perMonthUsed: Number,
+      perMonthLimit: { type: Number, default: 30 },
+    },
     filesQuota: { type: Number, default: 10 },
     files: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
   },

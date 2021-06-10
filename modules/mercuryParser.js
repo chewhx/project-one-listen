@@ -1,17 +1,7 @@
-require("dotenv").config();
 const { Readable } = require("stream");
 const Mercury = require("@postlight/mercury-parser");
 const slug = require("../utils/slug");
-const { Storage } = require("@google-cloud/storage");
-
-const { GCP_CLIENT_EMAIL, GCP_PRIVATE_KEY, GCP_PROJECT_ID } = process.env;
-const bucket = new Storage({
-  credentials: {
-    client_email: GCP_CLIENT_EMAIL,
-    private_key: GCP_PRIVATE_KEY.replace(/\\n/gm, "\n"),
-  },
-  projectId: GCP_PROJECT_ID,
-}).bucket("flashcard-6ec1f.appspot.com");
+const gStorageClient = require("../config/gcp/gStorageClient");
 
 /**
  * For articles more than 5000 characters, it will be split up into parts of plain text in a folder. This is because Google Text-to-Speech API has a request limit of not more than 5000 characters per request.
@@ -23,6 +13,9 @@ async function mercuryParser(file) {
   try {
     // Log
     console.log(`Starting parser for ${file.sourceUrl}`);
+
+    // Set bucket for upload json Google Cloud Storage
+    const bucket = gStorageClient.bucket("flashcard-6ec1f.appspot.com");
 
     // Parse the text with Mercury
     const res = await Mercury.parse(file.sourceUrl, { contentType: "text" });

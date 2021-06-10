@@ -24,6 +24,11 @@ const fileSchema = new mongoose.Schema(
       default: "Parser",
       enum: ["Parser", "Audio", "None"],
     },
+    downloads: {
+      direct: { type: Boolean, default: false },
+      gDrive: { type: Boolean, default: false },
+      email: { type: Boolean, default: false },
+    },
   },
   { timestamps: true }
 );

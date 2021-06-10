@@ -3,7 +3,10 @@ const express = require("express");
 const morgan = require("morgan");
 const colors = require("colors");
 const path = require("path");
+
 const connectDb = require("./config/mongoose/connectDb");
+const cookieSession = require("cookie-session");
+const passport = require("passport");
 
 // Start express app
 const app = express();
@@ -15,28 +18,70 @@ connectDb();
 app.set("view engine", "ejs");
 app.set("views", path.resolve(__dirname, "public"));
 
-const cookieSession = require("cookie-session");
-const passport = require("passport");
-
+// Body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Dev logger
 app.use(morgan("dev"));
 
-app.use(cookieSession({ maxAge: 24 * 60 * 60 * 1000, secret: "unicorn" }));
+// Passport and cookie sessions
+app.use(
+  cookieSession({
+    maxAge: 24 * 60 * 60 * 1000,
+    secret: process.env.COOKIE_SECRET,
+  })
+);
 require("./config/passport/google");
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Static files
 app.use("/static", express.static(path.resolve(__dirname, "public")));
+
+// Schedule jobs
+require("./schedules/parser");
+require("./schedules/synthesizer");
+require("./schedules/resetDayLimits");
+require("./schedules/resetMonthLimits");
+
+// Routes
 app.use("/auth", require("./routes/auth"));
-app.use("/user", require("./routes/user"));
-app.use("/file", require("./routes/file"));
+app.use("/user", require("./routes/api-v1-user"));
+app.use("/file", require("./routes/api-v1-file"));
 
 app.get("/", (req, res) => {
   if (req.isAuthenticated()) {
     res.redirect(`/user/${req.user._id}`);
   } else {
     res.render("index", { user: req.user });
+  }
+});
+
+app.get("/api/user/:id", async (req, res) => {
+  try {
+    // Make sure user and req params id matches
+    const idMatch = req.user._id == req.params.id;
+
+    // Get user from Mongo
+    const user = await MongoUser.findById(req.user._id).populate({
+      path: "files",
+      options: { sort: "-createdAt" },
+    });
+
+    if (!idMatch) {
+      res.render("error", {
+        error: `Unauthorised`,
+        user: req.user,
+      });
+    }
+
+    if (idMatch) {
+      res.json(user);
+    }
+  } catch (error) {
+    console.log(error);
+    res.render("error", { error, user: req.user });
   }
 });
 
@@ -59,62 +104,12 @@ app.get("/logout", (req, res) => {
 });
 
 //  ---------------------------------------------------------------------------------------
-//  @desc     404
-//  @route    GET  *
+//  @desc     All other pages and 404
+//  @route    GET  /*
 //  @access   Public
 app.get("*", (req, res) => {
   res.render("404", { user: req.user });
 });
-
-// ====================== Process queues ==============================
-
-const { mercuryParser, googleSpeech } = require("./modules");
-
-const MongoFile = require("./config/mongoose/File");
-
-let parserBusy = false;
-let audioBusy = false;
-
-setInterval(async () => {
-  if (parserBusy) return;
-  // get a file on parser queue from mongo
-  const file = await MongoFile.findOne({ queue: "Parser" });
-  if (!file) return;
-  // set parserbusy to true
-  parserBusy = true;
-  // pass into mercury parser
-  const parserSuccesss = await mercuryParser(file);
-  if (!parserSuccesss) {
-    file.status = "Error";
-  }
-  // update mongo file
-  file.queue = "Audio";
-  await file.save();
-  // set parserbusy to false
-  parserBusy = false;
-}, 3000);
-
-setInterval(async () => {
-  if (audioBusy) return;
-  // get a file on parser queue from mongo
-  const file = await MongoFile.findOne({ queue: "Audio" });
-  if (!file) return;
-  // set parserbusy to true
-  audioBusy = true;
-  // pass into mercury parser
-  const audioSuccess = await googleSpeech(file);
-  if (!audioSuccess) {
-    file.status = "Error";
-  }
-  // update mongo file
-  file.queue = "None";
-  file.status = "Completed";
-  file.fileLink = `https://storage.googleapis.com/flashcard-6ec1f.appspot.com/${file.user}/audio/${file.metadata.slug}`;
-
-  await file.save();
-  // set parserbusy to false
-  audioBusy = false;
-}, 5000);
 
 // -====================================================
 

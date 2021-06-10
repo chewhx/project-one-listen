@@ -1,25 +1,6 @@
-require("dotenv").config();
-const textToSpeech = require("@google-cloud/text-to-speech");
-const { Storage } = require("@google-cloud/storage");
+const gSpeechClient = require("../config/gcp/gSpeechClient");
+const gStorageClient = require("../config/gcp/gStorageClient");
 const splitText = require("../utils/splitText");
-
-const { GCP_CLIENT_EMAIL, GCP_PRIVATE_KEY, GCP_PROJECT_ID } = process.env;
-
-const speechClient = new textToSpeech.TextToSpeechClient({
-  credentials: {
-    client_email: GCP_CLIENT_EMAIL,
-    private_key: GCP_PRIVATE_KEY.replace(/\\n/gm, "\n"),
-  },
-  projectId: GCP_PROJECT_ID,
-});
-
-const bucket = new Storage({
-  credentials: {
-    client_email: GCP_CLIENT_EMAIL,
-    private_key: GCP_PRIVATE_KEY.replace(/\\n/gm, "\n"),
-  },
-  projectId: GCP_PROJECT_ID,
-}).bucket("flashcard-6ec1f.appspot.com");
 
 async function synthText(textContent) {
   try {
@@ -34,7 +15,7 @@ async function synthText(textContent) {
       audioConfig: { audioEncoding: "MP3" },
     };
 
-    const [response] = await await speechClient.synthesizeSpeech(request);
+    const [response] = await gSpeechClient.synthesizeSpeech(request);
     return response.audioContent;
   } catch (error) {
     return error;
@@ -50,6 +31,9 @@ async function synthText(textContent) {
 async function googleSpeech(file) {
   try {
     console.log(`Synthesizing audio clip...`);
+
+    // Set bucket for upload audio clip to Google Cloud Storage
+    const bucket = gStorageClient.bucket("flashcard-6ec1f.appspot.com");
 
     // Declare function MP3 file path
     const FILEPATH = `${file.user}/audio/${file.metadata.slug}`;

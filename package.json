@@ -38,6 +38,7 @@
     "googleapis": "^75.0.0",
     "mongoose": "^5.12.13",
     "morgan": "^1.10.0",
+    "node-schedule": "^2.0.0",
     "passport": "^0.4.1",
     "passport-google-oauth20": "^2.0.0",
     "slugify": "^1.5.3"
