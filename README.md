@@ -5,8 +5,10 @@
 - [ ] user data indicates uploads and downloads
 - [ ] button indicators for uploads and downloads
 - [x] Upload to GDrive
+- [ ] Account deletion
 - [ ] Handle Google token expiry
 - [x] Write a README
+- [ ] Form to submit support enquiry
 - [x] Implement quote limit for users
 - [x] Increased speed player, 2x, 3x
 - [x] When user deletes a file, delete the corresponding MongoDB record and actual files on google cloud storage

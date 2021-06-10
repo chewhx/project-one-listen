@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <%- include("partials/header") %>
+  <body>
+    <%- include("partials/navbar") %>
+
+    <div class="container">
+      <div class="row my-5">
+        <div class="col px-5">
+          <h3>Instructions:</h3>
+          <ol class="pl-4">
+            <li>
+              Submit url to a blog post or news article. Do not submit the same
+              article more than once.
+            </li>
+            <li>
+              Conversion will take place in the background. You may follow the
+              status of your article in the list below. This may take from a few
+              minutes to an hour, depending on the server.
+            </li>
+            <li>
+              In case of errors, or your article has not been converted after
+              some time, delete the item and try again.
+            </li>
+          </ol>
+          <form class="input-group form-row" action="/file" method="POST">
+            <label class="col-12" for="url">
+              <strong
+                >Note: This service does not endorse the distribution of
+                copyrighted materials. For personal use only.</strong
+              >
+            </label>
+            <input
+              type="text"
+              class="form-control col-12"
+              id="url"
+              name="url"
+              autocomplete="off"
+              placeholder="E.g. https://www.gemini.com/cryptopedia/compound-finance-defi-crypto"
+            />
+            <div class="input-group-append">
+              <button class="input-group-text btn-outline-dark" type="submit">
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <ul class="list-group list-group-flush">
+        <% if (!files.length) { %>
+        <div class="alert alert-secondary" role="alert">
+          No articles attached to this profile...
+        </div>
+        <% } %> <% for (let each of files) { %> <%- include
+        ("components/files-listgroup-item", {each}) %> <% } %>
+      </ul>
+    </div>
+    <%- include("partials/footer") %>
+  </body>
+</html>
