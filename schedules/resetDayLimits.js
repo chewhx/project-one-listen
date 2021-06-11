@@ -5,7 +5,7 @@ const MongoUser = require("../config/mongoose/User");
 
 const dayRule = new schedule.RecurrenceRule();
 dayRule.tz = "Asia/Singapore";
-dayRule.minute = 23;
+dayRule.hour = 23;
 dayRule.minute = 59;
 dayRule.second = 59;
 

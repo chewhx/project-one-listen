@@ -1,8 +1,11 @@
-const private = (req, res, next, err) => {
+const MyError = require("../config/myErrorClass");
+
+const private = (req, res, next) => {
   if (req.isAuthenticated()) {
     next();
+  } else {
+    throw new MyError(401, "Unauthorised");
   }
-  res.status(400).render("error", { error: "Unauthorised", user: req.user });
 };
 
 module.exports = private;

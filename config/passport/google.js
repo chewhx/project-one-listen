@@ -23,8 +23,11 @@ passport.use(
           token_type: "Bearer",
           expiry_date: Date.now() + 1000 * 60 * 60,
         };
+        userExist.lastLogin = new Date();
         await userExist.save();
-        return done(null, userExist);
+        await userExist.resetLimits();
+        const { _id, name, email, photo, googleId, lastLogin } = userExist;
+        return done(null, { _id, name, email, photo, googleId, lastLogin });
       }
       // ============
       if (!userExist) {
@@ -36,11 +39,17 @@ passport.use(
           googleToken: {
             refresh_token: refreshToken,
             access_token: accessToken,
+            scope:
+              "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/drive.file openid https://www.googleapis.com/auth/userinfo.email",
+            token_type: "Bearer",
+            expiry_date: Date.now() + 1000 * 60 * 60,
           },
+          lastLogin: new Date(),
         });
         if (newUser) {
           console.log("new user created");
-          return done(null, newUser);
+          const { _id, name, email, photo, googleId, lastLogin } = newUser;
+          return done(null, { _id, name, email, photo, googleId, lastLogin });
         }
       }
       // ============
@@ -54,6 +63,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser((id, done) => {
   User.findById(id).then((user) => {
-    done(null, user);
+    const { _id, name, email, photo, googleId, lastLogin } = user
+    done(null, { _id, name, email, photo, googleId, lastLogin });
   });
 });

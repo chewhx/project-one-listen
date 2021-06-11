@@ -40,17 +40,18 @@ const fileSchema = new mongoose.Schema(
 module.exports = new mongoose.model("File", fileSchema);
 
 const file = {
-  sourceUrl: String,
+  sourceUrl: { type: String, default: "" },
+  privateOnly: { type: Boolean, default: true },
   kind: { type: String, enum: ["Article"] },
-  selfLink: String,
-  resourcePath: String,
-  resourceName: String,
+  selfLink: { type: String, default: "" },
+  resourcePath: { type: String, default: "" },
+  resourceName: { type: String, default: "" },
   metadata: {
-    title: String,
-    slug: String,
-    excerpt: String,
-    wordCount: Number,
-    charCount: Number,
+    title: { type: String, default: "" },
+    slug: { type: String, default: "" },
+    excerpt: { type: String, default: "" },
+    wordCount: { type: Number, default: 0 },
+    charCount: { type: Number, default: 0 },
   },
   job: {
     status: {

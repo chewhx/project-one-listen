@@ -8,6 +8,8 @@ const connectDb = require("./config/mongoose/connectDb");
 const cookieSession = require("cookie-session");
 const passport = require("passport");
 
+const errorHandler = require("./middlewares/errorHandler");
+
 // Start express app
 const app = express();
 
@@ -111,7 +113,8 @@ app.get("*", (req, res) => {
   res.render("404", { user: req.user });
 });
 
-// -====================================================
+// Error handler
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

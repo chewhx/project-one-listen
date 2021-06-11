@@ -1,5 +1,6 @@
 const MongoFile = require("../config/mongoose/File");
 const MongoUser = require("../config/mongoose/User");
+const MyError = require("../config/myErrorClass");
 const deleteFileGStorage = require("../modules/deleteFileGStorage");
 const uploadToGoogleDrive = require("../modules/uploadToGoogleDrive");
 
@@ -14,23 +15,23 @@ exports.post_file = async (req, res) => {
     const user = await MongoUser.findById(req.user._id);
 
     // Check user quotas, daily and monthly limits
-    const quotaExceeded = user.files.length >= user.filesQuota;
+    const fileLimitExceeded = user.files.owner.length >= user.files.ownerLimit;
     const dailyLimitsExceeded =
       user.limits.perDayUsed >= user.limits.perDayLimit;
     const monthlyLimitsExceeded =
       user.limits.perMonthUsed >= user.limits.perMonthLimit;
 
     // If quota exceeds, throw error
-    if (quotaExceeded || dailyLimitsExceeded || monthlyLimitsExceeded) {
+    if (fileLimitExceeded || dailyLimitsExceeded || monthlyLimitsExceeded) {
       throw Error(
-        `${quotaExceeded && "Files quota exceeded."}  ${
+        `${fileLimitExceeded && "Files quota exceeded."}  ${
           dailyLimitsExceeded && "Daily limits exceeded."
         } ${monthlyLimitsExceeded && "Monthly limits exceeded."}`
       );
     }
 
     // If quota and limits do not exceed
-    if (!quotaExceeded && !dailyLimitsExceeded && !monthlyLimitsExceeded) {
+    if (!fileLimitExceeded && !dailyLimitsExceeded && !monthlyLimitsExceeded) {
       // Add new file to db
       const { _id: fileId } = await MongoFile.create({
         sourceUrl: req.body.url,
@@ -48,13 +49,12 @@ exports.post_file = async (req, res) => {
       // Push file to user files array, and update limits
       user.limits.perDayUsed += 1;
       user.limits.perMonthUsed += 1;
-      user.files.push(fileId);
+      user.files.owner.push(fileId);
       user.save();
     }
     res.redirect(`/user/${req.user._id}`);
-  } catch (error) {
-    console.log(error);
-    res.status(400).render("error", { error, user: req.user });
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -63,24 +63,25 @@ exports.post_file = async (req, res) => {
 //  @route    POST  /file/upload/:fileId
 //  @access   Private
 
-exports.upload_file = async (req, res) => {
+exports.upload_to_gdrive = async (req, res, next) => {
   try {
     // Get file from Mongo
     const file = await MongoFile.findById(req.params.fileId);
 
+    // Get user google token
+    const user = await MongoUser.findById(req.user._id);
+
     // Upload file to Google Drive
-    const uploadSuccess = await uploadToGoogleDrive(file, req.user);
+    const uploadSuccess = await uploadToGoogleDrive(file, user);
 
     // If upload success
     if (uploadSuccess) {
       // Change file downloads to true
-      file.downloads.gDrive = true;
-      await file.save();
       res.status(200).redirect(`/user/${req.user.id}`);
     }
-    res.status(500);
-  } catch (error) {
-    res.render("error", { error });
+    throw new MyError(500, "Error uploding to Google Drive");
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -95,8 +96,7 @@ exports.delete_file = async (req, res) => {
     await MongoUser.findByIdAndUpdate(
       req.user._id,
       {
-        $pull: { files: req.params.fileId },
-        $inc: { filesLength: -1 },
+        $pull: { "files.owner": req.params.fileId },
       },
       { new: true }
     );
@@ -109,7 +109,6 @@ exports.delete_file = async (req, res) => {
 
     // Delete file from db
     await file.remove();
-    await file.save();
 
     res.redirect(303, `/user/${req.user._id}`);
   } catch (error) {

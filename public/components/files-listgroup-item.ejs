@@ -1,9 +1,7 @@
 <li class="list-group-item">
   <div class="row">
-    <div class="col-md-6"> 
-      <h4>
-        <%- each.metadata.title ? each.metadata.title : each.fileName %>
-      </h4>
+    <div class="col-md-6">
+      <h4><%- each.metadata.title ? each.metadata.title : each.fileName %></h4>
       <div class="col-auto p-0 text-truncate">
         <a href="<%= each.sourceUrl %>">
           <small> <%= each.sourceUrl %> </small>
@@ -22,15 +20,12 @@
       </p>
     </div>
     <div class="col-md-6">
-      <div
-        class="row d-flex align-items-center justify-content-end mb-3"
-      >
+      <div class="row d-flex align-items-center justify-content-end mb-3">
         <% if(each.fileLink) { %>
         <audio id="player-<%= each._id %>" controls>
           <source src="<%= each.fileLink %>" type="audio/mpeg" />
           Your browser does not support the audio element.
         </audio>
-        <% } %>
         <div class="btn-group" role="group" aria-label="Basic example">
           <button
             class="btn btn-sm btn-link"
@@ -40,7 +35,7 @@
           >
             <strong> 1x </strong>
           </button>
-        <div class="btn-group" role="group" aria-label="Basic example">
+
           <button
             class="btn btn-sm btn-link"
             type="button"
@@ -66,44 +61,37 @@
             <strong> 2.5x </strong>
           </button>
         </div>
+        <% } %>
       </div>
       <div class="row d-flex align-items-center justify-content-end mt-3">
         <button type="button" class="btn btn-link btn-sm disabled">
           Email
-          <span
-            ><small class="badge badge-primary"
-              >Coming soon</small
-            ></span
-          >
+          <span><small class="badge badge-primary">Coming soon</small></span>
         </button>
 
         <% if (each.downloads.gDrive) { %>
-          <button
+        <button
           class="btn btn-link btn-sm text-secondary"
           value="<%= each._id %> "
           onclick="uploadToGDrive(value)"
         >
-        <span>
-          <i class="bi bi-check-circle-fill"></i>
-        </span>
+          <span>
+            <i class="bi bi-check-circle-fill"></i>
+          </span>
           Uploaded to GDrive
         </button>
         <% } else { %>
-          <button
+        <button
           class="btn btn-link btn-sm"
           value="<%= each._id %> "
           onclick="uploadToGDrive(value)"
-          >
+        >
           Upload to GDrive
         </button>
-        <% }  %>
-
-        <% if (each.status !== "Completed") { %>
+        <% } %> <% if (each.status !== "Completed") { %>
         <a class="btn btn-link btn-sm disabled"> Download</a>
         <% } else { %>
-        <a class="btn btn-link btn-sm" href="<%= each.fileLink %>">
-          Download</a
-        >
+        <a class="btn btn-link btn-sm" href="<%= each.fileLink %>"> Download</a>
         <% } %>
         <button
           type="button"
@@ -141,9 +129,8 @@
   </div>
 </li>
 <script>
-async function testing(userId) {
-  const res = await fetch(`/api/user/${userId}`)
-  console.log(res.json())
-}
-
+  async function testing(userId) {
+    const res = await fetch(`/api/user/${userId}`);
+    console.log(res.json());
+  }
 </script>

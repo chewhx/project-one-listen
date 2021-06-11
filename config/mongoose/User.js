@@ -15,53 +15,69 @@ const userSchema = new mongoose.Schema(
       expiry_date: Number,
     },
     limits: {
-      perDayUsed: Number,
+      perDayUsed: { type: Number, default: 0 },
+      perDayLastReset: Date,
+      perDayNextReset: Date,
       perDayLimit: { type: Number, default: 5 },
-      perMonthUsed: Number,
+      perMonthUsed: { type: Number, default: 0 },
+      perMonthLastReset: Date,
+      perMonthNextReset: Date,
       perMonthLimit: { type: Number, default: 30 },
     },
-    filesLimit: { type: Number, default: 10 },
-    files: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
+    files: {
+      ownerLimit: { type: Number, default: 10 },
+      owner: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
+      viewerLimit: { type: Number, default: 50 },
+      viewer: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
+    },
+    downloads: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "File",
+        downloadedDate: Date,
+      },
+    ],
+    lastLogin: Date,
   },
   {
     timestamps: true,
   }
 );
 
-module.exports = new mongoose.model("User", userSchema);
-
-const obj = {
-  name: String,
-  email: String,
-  photo: String,
-  googleId: String,
-  googleToken: {
-    access_token: String,
-    refresh_token: String,
-    scope: String,
-    token_type: String,
-    id_token: String,
-    expiry_date: Number,
-  },
-  limits: {
-    perDayUsed: Number,
-    perDayLastReset: Date,
-    perDayNextReset: Date,
-    perDayLimit: { type: Number, default: 5 },
-    perMonthUsed: Number,
-    perMonthLastReset: Date,
-    perMonthNextReset: Date,
-    perMonthReset: Date,
-    perMonthLimit: { type: Number, default: 30 },
-  },
-  files: {
-    ownerLimit: { type: Number, default: 10 },
-    owner: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
-    viewerLimit: { type: Number },
-    viewer: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
-  },
-  downloads: [
-    { type: mongoose.Schema.Types.ObjectId, ref: "File", downloadedDate: Date },
-  ],
-  lastLogin: Date,
+// Date helpers
+Date.prototype.addHours = function (h) {
+  this.setTime(this.getTime() + h * 60 * 60 * 1000);
+  return this;
 };
+
+Date.prototype.addMonths = function (h) {
+  this.setTime(this.getTime() + h * 30 * 24 * 60 * 60 * 1000);
+  return this;
+};
+
+// Reset day and month limits on every post
+userSchema.methods.resetLimits = async function () {
+  const { perDayNextReset, perMonthNextReset } = this.limits;
+
+  const currentDate = new Date();
+
+  // Reset for:  perDayNextReset is equal to or less than current date
+  if (perDayNextReset <= currentDate) {
+    this.limits.perDayUsed = 0;
+    this.limits.perDayLastReset = perDayNextReset;
+    this.limits.perDayNextReset = currentDate.addHours(24);
+  }
+
+  // perMonthNextReset is equal to or less than current date
+  if (perMonthNextReset <= currentDate) {
+    this.limits.perMonthUsed = 0;
+    this.limits.perMonthLastReset = perMonthNextReset;
+    this.limits.perMonthNextReset = currentDate.addMonths(1);
+  }
+
+  await this.save();
+};
+
+const User = new mongoose.model("User", userSchema);
+
+module.exports = User;

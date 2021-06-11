@@ -1,14 +1,17 @@
 const Stream = require("stream");
-const gStorageClient = require("../config/gcp/gStorageClient");
-const gDrive = require("../config/gcp/gDrive");
+const bucket = require("../config/gcp/bucket");
+const oAuthClient = require("../config/gcp/oAuthClient");
+const { google } = require("googleapis");
 
 async function uploadToGoogleDrive(file, user) {
   try {
-    // Set bucket for Google Cloud Storage
-    const bucket = gStorageClient.bucket("flashcard-6ec1f.appspot.com");
-
-    // Set credentials for GDrive
-    gDrive.setCredentials(user.googleToken);
+    // Set user credentials and auth for GDrive
+    oAuthClient.setCredentials(user.googleToken);
+    
+    const drive = google.drive({
+      version: "v3",
+      auth: oAuthClient,
+    });
 
     // Download audio from bucket
     const [res] = await bucket
@@ -22,7 +25,7 @@ async function uploadToGoogleDrive(file, user) {
     read.push(res, "binary");
     read.push(null);
 
-    const response = await gDrive.files.create({
+    const response = await drive.files.create({
       requestBody: {
         name: `${file.metadata.slug}.mp3`,
         mimeType: "audio/mpeg",

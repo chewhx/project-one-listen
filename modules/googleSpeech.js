@@ -1,5 +1,5 @@
 const gSpeechClient = require("../config/gcp/gSpeechClient");
-const gStorageClient = require("../config/gcp/gStorageClient");
+const bucket = require("../config/gcp/bucket");
 const splitText = require("../utils/splitText");
 
 async function synthText(textContent) {
@@ -22,18 +22,9 @@ async function synthText(textContent) {
   }
 }
 
-/**
- *
- * @param {String} filePath  File path of the file or folder containing texts to be synthesized
- * @returns Audioclip saved to 'downloads' folder under project root directory
- */
-
 async function googleSpeech(file) {
   try {
     console.log(`Synthesizing audio clip...`);
-
-    // Set bucket for upload audio clip to Google Cloud Storage
-    const bucket = gStorageClient.bucket("flashcard-6ec1f.appspot.com");
 
     // Declare function MP3 file path
     const FILEPATH = `${file.user}/audio/${file.metadata.slug}`;
@@ -43,7 +34,7 @@ async function googleSpeech(file) {
 
     if (audioFileExists) {
       console.log("Audio file already downloaded.");
-      file.filePath = FILEPATH;
+
       await file.save();
       return true;
     }
@@ -84,7 +75,6 @@ async function googleSpeech(file) {
         )
       );
 
-      file.filePath = FILEPATH;
       await file.save();
       return true;
     }

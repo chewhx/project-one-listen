@@ -1,5 +1,4 @@
-const gStorageClient = require("../config/gcp/gStorageClient");
-const bucket = gStorageClient.bucket("flashcard-6ec1f.appspot.com");
+const bucket = require("../config/gcp/bucket");
 
 const deleteFileGStorage = async (file) => {
   try {
@@ -17,4 +16,4 @@ const deleteFileGStorage = async (file) => {
   }
 };
 
-module.exports = deleteFileGStorage
+module.exports = deleteFileGStorage;

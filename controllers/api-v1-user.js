@@ -13,7 +13,7 @@ exports.get_user_uploads = async (req, res) => {
 
     // Get user from Mongo
     const { files } = await MongoUser.findById(req.user._id).populate({
-      path: "files",
+      path: "files.owner",
       options: { sort: "-createdAt" },
     });
 
@@ -25,7 +25,7 @@ exports.get_user_uploads = async (req, res) => {
     }
 
     if (idMatch) {
-      res.render("files", { files, user: req.user });
+      res.render("files", { files: files.owner, user: req.user });
     }
   } catch (error) {
     console.log(error);
@@ -38,26 +38,38 @@ exports.get_user_uploads = async (req, res) => {
 //  @route    GET  /user/:id/profile
 //  @access   Private
 
-exports.get_user_profile = async (req, res) => {
+exports.get_user_profile = async (req, res, next) => {
   try {
-    // Make sure user and req params id matches
-    const idMatch = req.user._id == req.params.id;
+    if (req.user._id != req.params.id) {
+      throw Error("Not authorised");
+    }
 
     // Get user from Mongo
     const user = await MongoUser.findById(req.user._id);
 
-    if (!idMatch) {
-      res.render("error", {
-        error: `Unauthorised`,
-        user: req.user,
-      });
-    }
+    res.render("profile", { user });
+  } catch (err) {
+    next(err);
+  }
+};
 
-    if (idMatch) {
-      res.render("profile", { user: req.user });
-    }
+//  ---------------------------------------------------------------------------------------
+//  @desc     Delete user account and files
+//  @route    DELETE  /user/:id
+//  @access   Private
+
+exports.delete_user = async (req, res) => {
+  try {
+    // Get user from Monogo
+    const user = await MongoUser.findById(req.user._id);
+    // Delete all files from user
+    await MongoFile.deleteMany({ _id: { $in: user.files.owner } });
+    // Delete user from mongo
+    user.remove();
+    // Logout user
+    res.redirect(303, "/logout");
+    // Send email to confirm
   } catch (error) {
-    console.log(error);
-    res.render("error", { error, user: req.user });
+    next(err);
   }
 };

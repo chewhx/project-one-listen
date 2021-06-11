@@ -6,7 +6,6 @@
     <%- include ("partials/navbar") %>
     <div class="container" style="min-height: 100vh">
       <div class="row my-5 py-5">
-
         <div class="col-md-2">
           <img src="<%- user.photo ? user.photo :
           `https://ui-avatars.com/api/?name=${user.name.split("").join("+")}`
@@ -15,133 +14,127 @@
 
         <div class="col-md-10">
           <ul class="list-group list-group-flush">
-
-            <%- include 
-            ("components/profile-listgroup-item", 
-            {label: "Name",value: user.name}
-            ) %> 
-
+            <%- include ("components/profile-listgroup-item", {label:
+            "Name",value: user.name} ) %> 
+            
             <%- include
-            ("components/profile-listgroup-item", 
-            {label: "Email", value: user.email}
-            ) %> 
-
-            <%- include 
-            ("components/profile-listgroup-item",
+            ("components/profile-listgroup-item", {label: "Email", value:
+            user.email} ) %> 
+            
+            <%- include ("components/profile-listgroup-item",
             {label: "Day Limits", value: `${user.limits.perDayUsed} files
             uploaded. You have ${user.limits.perDayLimit -
-            user.limits.perDayUsed} uploads left for the day.`}
-            ) %> 
-
+            user.limits.perDayUsed} uploads left for the day.`} ) %> 
+            
             <%- include
             ("components/profile-listgroup-item", {label: "Month Limits", value:
             `${user.limits.perMonthUsed} files uploaded. You have
             ${user.limits.perMonthLimit - user.limits.perMonthUsed} uploads left
-            for the month.`}
-            ) %> 
-
+            for the month.`} ) %> 
+            
             <%- include
             ("components/profile-listgroup-item", {label: "File Limits", value:
-            `You have ${user.files.length} files. You have keep up to
-            ${user.filesQuota} files at any time.`}
-            ) %> 
+            `You have ${user.files.owner.length} files. You can keep up to
+            ${user.files.ownerLimit} files at any time.`} ) %> 
             
             <%- include
             ("components/profile-listgroup-item", {label: "Google Drive Access",
-            value:user.googleToken ? "Yes" : "No"}
-            ) %>
-
-
+            value:user.googleToken ? "Yes" : "No"} ) %> 
+            
             <%- include
-            ("components/profile-listgroup-item", 
-            {label: "Google Access Token (do not share)", value: user.googleToken.access_token}
-            ) %> 
-
-
-            <%- include
-            ("components/profile-listgroup-item", 
-            {label: "Google Refresh Token (do not share)", value: user.googleToken.refresh_token}
-            ) %> 
-
+            ("components/profile-listgroup-item", {label: "Google Access Token (do not share)", value: user.googleToken.access_token} ) %> 
+            
+            <%-
+            include ("components/profile-listgroup-item", {label: "Google Refresh Token (do not share)", value:
+            user.googleToken.refresh_token} ) %>
           </ul>
         </div>
 
-        <button type="button" class="btn btn-lg btn-danger btn-block mt-5" data-toggle="modal" data-target="#deleteAccountModal">DELETE THIS ACCOUNT <br /> (Will activate a modal to confirm)</button>
+        <button
+          type="button"
+          class="btn btn-lg btn-danger btn-block mt-5"
+          data-toggle="modal"
+          data-target="#deleteAccountModal"
+        >
+          DELETE THIS ACCOUNT <br />
+          (Will activate a modal to confirm)
+        </button>
 
-        <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+        <div
+          class="modal fade"
+          id="deleteAccountModal"
+          tabindex="-1"
+          aria-labelledby="deleteAccountModalLabel"
+          aria-hidden="true"
+        >
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h1 class="text-danger" id="exampleModalLabel"><i class="bi bi-exclamation-triangle-fill"></i>You are deleting your account</h1>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h1 class="text-danger" id="exampleModalLabel">
+                  <i class="bi bi-exclamation-triangle-fill"></i>You are
+                  deleting your account
+                </h1>
+                <button
+                  type="button"
+                  class="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+                >
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
               <div class="modal-body h3">
                 <p>
-
-                    This action cannot be undone. Your account information and uploads will be deleted from our database and storage. They cannot be recovered. Please download a copy if you do not want to lose the files. 
-
+                  This action cannot be undone. Your account information and
+                  uploads will be deleted from our database and storage. They
+                  cannot be recovered. Please download a copy if you do not want
+                  to lose the files.
                 </p>
 
                 <p class="text-primary">
                   <strong>
-                    This is the final step before actual deletion. There are no more failsafe.
+                    This is the final step before actual deletion. There are no
+                    more failsafe.
                   </strong>
                 </p>
-
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-lg btn-warning" data-dismiss="modal">CANCEL</button>
-                <button type="button" class="btn btn-lg btn-secondary">CONFIRM DELETION</button>
+                <button
+                  type="button"
+                  class="btn btn-lg btn-warning"
+                  data-dismiss="modal"
+                >
+                  CANCEL
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-lg btn-secondary"
+                  data-dismiss="modal"
+                  value="<%= user._id %>"
+                  onclick="deleteUser(value)"
+                >
+                  CONFIRM DELETION
+                </button>
               </div>
             </div>
           </div>
         </div>
-        
-
       </div>
     </div>
     <%- include ("partials/footer") %>
   </body>
 
   <script>
-    function setShowDeleteAlert(fileId) {
-      var modal = document.querySelector(`#delete-modal-${fileId}`);
-      if (modal.style.visibility === "hidden") {
-        modal.style.visibility = "visible";
-      } else {
-        modal.style.visibility = "hidden";
-      }
-    }
-    async function deleteFile(fileId) {
-      await fetch(`/file/${fileId}`, {
-        method: "DELETE",
-      });
-      window.location.reload();
-    }
-
-    async function uploadToGDrive(fileId) {
-      const res = await fetch(`/user/upload/${fileId}`, {
-        method: "POST",
-      });
-      if (res.status === 200) {
-        setAlert("File Uploaded");
-      } else {
-        setAlert("Error uploding file");
-      }
-      // window.location.reload();
-    }
-
-    function setPlaybackSpeed(playerId, speed) {
-      document.querySelector(`#player-${playerId}`).playbackRate = speed;
-    }
-
     function setAlert(message) {
       var alert = document.querySelector("#alert-modal");
       alert.style.visibility = "visible";
       var p = document.querySelector("#alert-modal > p");
       p.innerText = message;
+    }
+
+    async function deleteUser(userId) {
+      console.log(userId);
+      var res = await fetch(`/user/${userId}`, { method: "DELETE" });
     }
   </script>
 </html>

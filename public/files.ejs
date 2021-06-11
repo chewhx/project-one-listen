@@ -57,5 +57,38 @@
       </ul>
     </div>
     <%- include("partials/footer") %>
+
+    <script>
+      function setShowDeleteAlert(fileId) {
+        var modal = document.querySelector(`#delete-modal-${fileId}`);
+        if (modal.style.visibility === "hidden") {
+          modal.style.visibility = "visible";
+        } else {
+          modal.style.visibility = "hidden";
+        }
+      }
+      async function deleteFile(fileId) {
+        await fetch(`/file/${fileId}`, {
+          method: "DELETE",
+        });
+        window.location.reload();
+      }
+
+      async function uploadToGDrive(fileId) {
+        const res = await fetch(`/file/upload/${fileId}`, {
+          method: "POST",
+        });
+        if (res.status === 200) {
+          setAlert("File Uploaded");
+        } else {
+          setAlert("Error uploding file");
+        }
+        // window.location.reload();
+      }
+
+      function setPlaybackSpeed(playerId, speed) {
+        document.querySelector(`#player-${playerId}`).playbackRate = speed;
+      }
+    </script>
   </body>
 </html>
