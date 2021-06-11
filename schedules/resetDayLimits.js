@@ -1,12 +1,13 @@
 const schedule = require("node-schedule");
+const MongoUser = require("../config/mongoose/User");
 
 // This job will reset the daily user upload limits at 23:59:00
 
 const dayRule = new schedule.RecurrenceRule();
 dayRule.tz = "Asia/Singapore";
-dayRule.hour = 23;
+dayRule.minute = 23;
 dayRule.minute = 59;
-dayRule.second = 00;
+dayRule.second = 59;
 
 const resetUserDayLimit = schedule.scheduleJob(dayRule, () => {
   MongoUser.updateMany({}, { "limits.perDayUsed": 0 })

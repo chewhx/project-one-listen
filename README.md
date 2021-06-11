@@ -6,6 +6,9 @@
 - [ ] button indicators for uploads and downloads
 - [x] Upload to GDrive
 - [ ] Account deletion
+- [ ] Listen to youtube videos
+- [ ] Listen to podcast
+- [ ] Blog posts and curated articles on speed listening and learning
 - [ ] Handle Google token expiry
 - [x] Write a README
 - [ ] Form to submit support enquiry
