@@ -27,7 +27,7 @@ async function googleSpeech(file) {
     console.log(`Synthesizing audio clip...`);
 
     // Declare function MP3 file path
-    const FILEPATH = `${file.user}/audio/${file.metadata.slug}`;
+    const FILEPATH = `${file.owner}/audio/${file.metadata.slug}`;
 
     // Check if audio file already exists
     const [audioFileExists] = await bucket.file(FILEPATH).exists();
@@ -41,7 +41,7 @@ async function googleSpeech(file) {
 
     // Read JSON from google cloud storage
     const [res] = await bucket
-      .file(`${file.user}/parser/${file.metadata.slug}`)
+      .file(`${file.owner}/parser/${file.metadata.slug}`)
       .download();
 
     const json = JSON.parse(res.toString());

@@ -15,7 +15,9 @@ let audioBusy = false;
 const audioJob = schedule.scheduleJob(audioScheduleRules, async () => {
   if (audioBusy) return;
   // get a file on parser queue from mongo
-  const file = await MongoFile.findOne({ queue: "Audio" });
+  const file = await MongoFile.findOne({
+    "job.queue": "Audio",
+  });
   if (!file) {
     console.log(
       `No file queued for googleSpeech. ${new Date().toLocaleString("en-SG", {
@@ -30,12 +32,12 @@ const audioJob = schedule.scheduleJob(audioScheduleRules, async () => {
   // pass into mercury parser
   const audioSuccess = await googleSpeech(file);
   if (!audioSuccess) {
-    file.status = "Error";
+    file.job.status = "Error";
   }
   // update mongo file
-  file.queue = "None";
-  file.status = "Completed";
-  file.fileLink = `https://storage.googleapis.com/flashcard-6ec1f.appspot.com/${file.user}/audio/${file.metadata.slug}`;
+  file.job.queue = "None";
+  file.job.status = "Completed";
+  file.selfLink = `https://storage.googleapis.com/flashcard-6ec1f.appspot.com/${file.owner}/audio/${file.metadata.slug}`;
 
   await file.save();
 

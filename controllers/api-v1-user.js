@@ -2,40 +2,8 @@ const MongoUser = require("../config/mongoose/User");
 const MongoFile = require("../config/mongoose/File");
 
 //  ---------------------------------------------------------------------------------------
-//  @desc     User files page
-//  @route    GET  /user/:id
-//  @access   Private
-
-exports.get_user_uploads = async (req, res) => {
-  try {
-    // Make sure user and req params id matches
-    const idMatch = req.user._id == req.params.id;
-
-    // Get user from Mongo
-    const { files } = await MongoUser.findById(req.user._id).populate({
-      path: "files.owner",
-      options: { sort: "-createdAt" },
-    });
-
-    if (!idMatch) {
-      res.render("error", {
-        error: `Unauthorised`,
-        user: req.user,
-      });
-    }
-
-    if (idMatch) {
-      res.render("files", { files: files.owner, user: req.user });
-    }
-  } catch (error) {
-    console.log(error);
-    res.render("error", { error, user: req.user });
-  }
-};
-
-//  ---------------------------------------------------------------------------------------
 //  @desc     User profile page
-//  @route    GET  /user/:id/profile
+//  @route    GET  /user/:id
 //  @access   Private
 
 exports.get_user_profile = async (req, res, next) => {
@@ -44,10 +12,12 @@ exports.get_user_profile = async (req, res, next) => {
       throw Error("Not authorised");
     }
 
-    // Get user from Mongo
-    const user = await MongoUser.findById(req.user._id);
+    const user = await MongoUser.findById(req.user._id).populate({
+      path: "files.owner",
+      options: { sort: "-createdAt" },
+    });
 
-    res.render("profile", { user });
+    res.status(200).send(user);
   } catch (err) {
     next(err);
   }
@@ -58,18 +28,54 @@ exports.get_user_profile = async (req, res, next) => {
 //  @route    DELETE  /user/:id
 //  @access   Private
 
-exports.delete_user = async (req, res) => {
+exports.delete_user = async (req, res, next) => {
   try {
-    // Get user from Monogo
+    // Get user from Mongo
     const user = await MongoUser.findById(req.user._id);
     // Delete all files from user
     await MongoFile.deleteMany({ _id: { $in: user.files.owner } });
     // Delete user from mongo
     user.remove();
     // Logout user
-    res.redirect(303, "/logout");
+    res.status(200).json({ message: `User ${req.params.id} deleted. ` });
     // Send email to confirm
   } catch (error) {
+    next(err);
+  }
+};
+
+//  ---------------------------------------------------------------------------------------
+//  @desc     Get all user profiles
+//  @route    GET  /user
+//  @access   Admin
+
+exports.get_all_user_profiles = async (req, res, next) => {
+  try {
+    // Get users from Mongo
+    const users = await MongoUser.find({});
+
+    res.status(200).json(users);
+  } catch (err) {
+    next(err);
+  }
+};
+
+//  ---------------------------------------------------------------------------------------
+//  @desc     Edit user details
+//  @route    PUT /user/:id
+//  @access   Admin
+
+exports.edit_user = async (req, res, next) => {
+  try {
+    // Update user in Mongo
+    const user = await MongoUser.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    if (!user) {
+      throw Error;
+    }
+    res.status(200).json(user);
+  } catch (err) {
     next(err);
   }
 };

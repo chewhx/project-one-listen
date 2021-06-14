@@ -28,25 +28,13 @@ async function mercuryParser(file) {
     file.metadata.charCount = res.char_count;
     // await file.save();
 
-    // Check if articles has already been downloaded in form of json or folder,
-    // const fileExists = await bucket
-    //   .file(`/${file.user}/parser/${file.metadata.slug}`)
-    //   .exists();
-
-    // if (fileExists) {
-    //   console.log("Article has already been downloaded.");
-    //   file.filePath = `${parserDirPath}/${file.metadata.slug}`;
-    //   await file.save();
-    //   return true;
-    // }
-
     // Save the res in google cloud storage
     const read = new Readable({
       read() {},
     });
 
     const write = bucket
-      .file(`${file.user}/parser/${file.metadata.slug}`)
+      .file(`${file.owner}/parser/${file.metadata.slug}`)
       .createWriteStream({ metadata: { contentType: "application/json" } });
 
     read.push(JSON.stringify(res));

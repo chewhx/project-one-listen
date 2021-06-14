@@ -7,12 +7,12 @@ const userSchema = new mongoose.Schema(
     photo: String,
     googleId: String,
     googleToken: {
-      access_token: String,
-      refresh_token: String,
-      scope: String,
-      token_type: String,
-      id_token: String,
-      expiry_date: Number,
+      access_token: { type: String, select: false },
+      refresh_token: { type: String, select: false },
+      scope: { type: String, select: false },
+      token_type: { type: String, select: false },
+      id_token: { type: String, select: false },
+      expiry_date: { type: Number, select: false },
     },
     limits: {
       perDayUsed: { type: Number, default: 0 },
@@ -38,6 +38,7 @@ const userSchema = new mongoose.Schema(
       },
     ],
     lastLogin: Date,
+    isAdmin: { type: Boolean, default: false },
   },
   {
     timestamps: true,

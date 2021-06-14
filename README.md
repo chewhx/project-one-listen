@@ -1,30 +1,31 @@
 ## Roadmap
 
+- [ ] ~~Button indicators for uploads and downloads~~
+- [ ] Write a README
+- [x] Implement a react frontend
+- [x] Error modal
+- [ ] Admin page:
+  - [ ] CRUD users - edit limits
+  - [ ] CRUD files - edit status, delete files
+- [ ] Account deletion
+- [ ] Bcrypt for google  tokens
+- [ ] Let user input raw text to be synthesized to audio
+- [ ] Upload text file to synthesize
 - [ ] Reallocate buckets for asset uploads
 - [ ] Tidy scopes for google oauth
 - [ ] File data indicates uploads and downloads
-- [ ] --button indicators for uploads and downloads--
-- [x] Upload to GDrive
-- [ ] Account deletion
-- [ ] Bcrypt for google access tokens
 - [ ] Listen to youtube videos
 - [ ] Listen to podcast
 - [ ] Blog posts and curated articles on speed listening and learning
 - [ ] Handle Google token expiry
 - [ ] Form to submit support enquiry
-- [ ] Write a README
+- [x] Upload to GDrive
 - [x] Implement quote limit for users
 - [x] Increased speed player, 2x, 3x
 - [x] When user deletes a file, delete the corresponding MongoDB record and actual files on google cloud storage
 - [ ] Parse and handle Mandarin
-- [ ] Implement a react frontend
-- [ ] Admin page:
-  - [ ] CRUD users - edit limits
-  - [ ] CRUD files - edit status, delete files
 - [ ] Let users pick the language of the text
 - [ ] Feature to edit text before synthesis - form to edit and validate number of characters and words
 - [ ] Function to send the audio file or file link to user email
-- [ ] Let user input raw text to be synthesized to audio
-- [ ] Upload text file to synthesize
 - [ ] "Buy me coffee"
 - [ ] OCR and synthesize pdfs (?)

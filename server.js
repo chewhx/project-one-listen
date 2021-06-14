@@ -32,6 +32,7 @@ app.use(
   cookieSession({
     maxAge: 24 * 60 * 60 * 1000,
     secret: process.env.COOKIE_SECRET,
+    httpOnly: true,
   })
 );
 require("./config/passport/google");
@@ -39,7 +40,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Static files
-app.use("/static", express.static(path.resolve(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "./client/build")));
 
 // Schedule jobs
 require("./schedules/parser");
@@ -54,37 +55,9 @@ app.use("/file", require("./routes/api-v1-file"));
 
 app.get("/", (req, res) => {
   if (req.isAuthenticated()) {
-    res.redirect(`/user/${req.user._id}`);
-  } else {
-    res.render("index", { user: req.user });
+    res.redirect(`http://localhost:5000/profile/${req.user._id}`);
   }
-});
-
-app.get("/api/user/:id", async (req, res) => {
-  try {
-    // Make sure user and req params id matches
-    const idMatch = req.user._id == req.params.id;
-
-    // Get user from Mongo
-    const user = await MongoUser.findById(req.user._id).populate({
-      path: "files",
-      options: { sort: "-createdAt" },
-    });
-
-    if (!idMatch) {
-      res.render("error", {
-        error: `Unauthorised`,
-        user: req.user,
-      });
-    }
-
-    if (idMatch) {
-      res.json(user);
-    }
-  } catch (error) {
-    console.log(error);
-    res.render("error", { error, user: req.user });
-  }
+  res.sendFile(path.resolve(__dirname, "./client/build", "index.html"));
 });
 
 //  ---------------------------------------------------------------------------------------
@@ -110,7 +83,7 @@ app.get("/logout", (req, res) => {
 //  @route    GET  /*
 //  @access   Public
 app.get("*", (req, res) => {
-  res.render("404", { user: req.user });
+  res.sendFile(path.resolve(__dirname, "./client/build", "index.html"));
 });
 
 // Error handler

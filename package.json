@@ -4,12 +4,17 @@
   "description": "Node JS application parses text from online articles and convert to audio.",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js"
+    "dev": "nodemon server.js",
+    "start": "node sever.js",
+    "build": "cd client/ && npm install && npm run build"
   },
   "engines": {
     "node": "14.x"
   },
+  "cacheDirectories": [
+    "node_modules",
+    "client/node_modules"
+  ],
   "keywords": [
     "article",
     "googlecloud",

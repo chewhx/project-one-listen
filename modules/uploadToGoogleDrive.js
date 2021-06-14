@@ -3,11 +3,11 @@ const bucket = require("../config/gcp/bucket");
 const oAuthClient = require("../config/gcp/oAuthClient");
 const { google } = require("googleapis");
 
-async function uploadToGoogleDrive(file, user) {
+async function uploadToGoogleDrive(file, googleToken) {
   try {
     // Set user credentials and auth for GDrive
-    oAuthClient.setCredentials(user.googleToken);
-    
+    oAuthClient.setCredentials(googleToken);
+
     const drive = google.drive({
       version: "v3",
       auth: oAuthClient,

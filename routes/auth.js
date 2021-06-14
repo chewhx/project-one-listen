@@ -1,6 +1,5 @@
 const router = require("express").Router();
 const passport = require("passport");
-const User = require("../config/mongoose/User");
 
 const SCOPES = [
   "https://www.googleapis.com/auth/userinfo.email",
@@ -10,7 +9,7 @@ const SCOPES = [
 
 //  ---------------------------------------------------------------------------------------
 //  @desc     Log in with Google OAuth
-//  @route    POST  /auth/google
+//  @route    GET  /auth/google
 //  @access   Public
 
 router.get(
@@ -29,6 +28,18 @@ router.get(
 
 router.get("/google/callback", passport.authenticate("google"), (req, res) => {
   res.redirect("/");
+});
+
+router.get("/:userId", async (req, res, next) => {
+  try {
+    if (req.isAuthenticated()) {
+      res.status(200).send(req.user);
+    } else {
+      throw Error;
+    }
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;

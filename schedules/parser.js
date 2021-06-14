@@ -12,7 +12,7 @@ let parserBusy = false;
 const parserJob = schedule.scheduleJob(parserScheduleRules, async () => {
   if (parserBusy) return;
   // get a file on parser queue from mongo
-  const file = await MongoFile.findOne({ queue: "Parser" });
+  const file = await MongoFile.findOne({ "job.queue": "Parser" });
   if (!file) {
     console.log(
       `No file queued for mercuryParser. ${new Date().toLocaleString("en-SG", {
@@ -27,10 +27,10 @@ const parserJob = schedule.scheduleJob(parserScheduleRules, async () => {
   // pass into mercury parser
   const parserSuccesss = await mercuryParser(file);
   if (!parserSuccesss) {
-    file.status = "Error";
+    file.job.status = "Error";
   }
   // update mongo file
-  file.queue = "Audio";
+  file.job.queue = "Audio";
   await file.save();
 
   console.log(

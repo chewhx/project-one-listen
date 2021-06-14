@@ -7,7 +7,7 @@ const errorHandler = (err, req, res, next) => {
 
   res
     .status(error.statusCode || err.statusCode || err.status || 500)
-    .render("error", { error, user: req.user });
+    .send(error.message || "Server error");
 };
 
 module.exports = errorHandler;
