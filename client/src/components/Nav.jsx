@@ -30,7 +30,7 @@ const Nav_ = () => {
   const logoutHandler = async () => {
     const { status } = await axios.get(`/logout`);
     setUser({});
-    if (status === 200) {
+    if (status === 200 || status === 302) {
       history.replace(`/`);
     }
   };
