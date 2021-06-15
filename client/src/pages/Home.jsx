@@ -128,10 +128,7 @@ const Home = () => {
           <Card className="mx-auto my-5" style={{ width: "23rem" }}>
             <Card.Body>
               <Card.Title>Create account / Log in</Card.Title>
-              <a
-                className="btn btn-danger btn-block my-5"
-                href="http://localhost:5000/auth/google"
-              >
+              <a className="btn btn-danger btn-block my-5" href="/auth/google">
                 <span>
                   <i className="bi bi-google mr-3"></i>
                 </span>

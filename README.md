@@ -4,11 +4,13 @@
 - [ ] Write a README
 - [x] Implement a react frontend
 - [x] Error modal
+- [ ] URL validator
+- [ ] Refetch files in background - reactquery
 - [ ] Admin page:
   - [ ] CRUD users - edit limits
   - [ ] CRUD files - edit status, delete files
 - [ ] Account deletion
-- [ ] Bcrypt for google  tokens
+- [ ] Bcrypt for google tokens
 - [ ] Let user input raw text to be synthesized to audio
 - [ ] Upload text file to synthesize
 - [ ] Reallocate buckets for asset uploads

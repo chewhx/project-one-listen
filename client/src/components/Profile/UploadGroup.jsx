@@ -46,8 +46,8 @@ const UploadGroup = () => {
           </li>
         </ol>
         <Formik
-          onSubmit={(values, { resetForm }) => {
-            postFile(values.url);
+          onSubmit={async (values, { resetForm }) => {
+            await postFile(values.url);
             resetForm();
           }}
           initialValues={{ url: "" }}
