@@ -3,11 +3,9 @@ const mongoose = require("mongoose");
 const fileSchema = new mongoose.Schema(
   {
     sourceUrl: { type: String, default: "" },
-    privateOnly: { type: Boolean, default: true },
-    kind: { type: String, enum: ["Article"] },
     selfLink: { type: String, default: "" },
-    resourcePath: { type: String, default: "" },
-    resourceName: { type: String, default: "" },
+    selfPath: { type: String, default: "" },
+    selfName: { type: String, default: "" },
     metadata: {
       title: { type: String, default: "" },
       slug: { type: String, default: "" },

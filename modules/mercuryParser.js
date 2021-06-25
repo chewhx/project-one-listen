@@ -3,12 +3,6 @@ const Mercury = require("@postlight/mercury-parser");
 const slug = require("../utils/slug");
 const bucket = require("../config/gcp/bucket");
 
-/**
- * For articles more than 5000 characters, it will be split up into parts of plain text in a folder. This is because Google Text-to-Speech API has a request limit of not more than 5000 characters per request.
- *
- * @param {String} url Article url to be synthesized to audio
- * @returns Local filepath to json or folder of the extracted texts
- */
 async function mercuryParser(file) {
   try {
     // Log
