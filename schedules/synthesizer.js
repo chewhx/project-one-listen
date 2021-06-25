@@ -1,14 +1,16 @@
 const schedule = require("node-schedule");
-const MongoFile = require("../config/mongoose/File");
-const googleSpeech = require("../modules/googleSpeech");
+const logger = require("pino")({ prettyPrint: true });
+const MongoFile = require("../config/mongoose/Resource");
+const synthAudio = require("../modules/synthAudio");
 
 // This scheduled job will pull the latest file from Mongo with queue: "Audio" and synthesize the text content into audio
 const audioScheduleRules = new schedule.RecurrenceRule();
 audioScheduleRules.tz = "Asia/Singapore";
-audioScheduleRules.minute = [
-  0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40,
-  42, 44, 46, 48, 50, 52, 54, 56, 58,
-];
+// audioScheduleRules.minute = [
+//   0, 2, 4, 6, 8, 10, 12, 14, 15, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38,
+//   40, 42, 44, 46, 48, 50, 52, 54, 56, 58,
+// ];
+audioScheduleRules.second = [10, 20, 40, 55];
 
 let audioBusy = false;
 
@@ -19,29 +21,32 @@ const audioJob = schedule.scheduleJob(audioScheduleRules, async () => {
     "job.queue": "Audio",
   });
   if (!file) {
-    console.log(
-      `No file queued for googleSpeech. ${new Date().toLocaleString("en-SG", {
-        dateStyle: "long",
-        timeStyle: "long",
-      })}`.yellow
+    logger.warn(
+      `No file queued for audio synthesizing. ${new Date().toLocaleString(
+        "en-SG",
+        {
+          dateStyle: "long",
+          timeStyle: "long",
+        }
+      )}`.yellow
     );
     return;
   }
   // set parserbusy to true
   audioBusy = true;
   // pass into mercury parser
-  const audioSuccess = await googleSpeech(file);
+  const audioSuccess = await synthAudio(file);
   if (!audioSuccess) {
     file.job.status = "Error";
   }
   // update mongo file
   file.job.queue = "None";
   file.job.status = "Completed";
-  file.selfLink = `https://storage.googleapis.com/flashcard-6ec1f.appspot.com/${file.owner}/audio/${file.metadata.slug}`;
+  file.selfLink = `https://storage.googleapis.com/flashcard-6ec1f.appspot.com/${file.metadata.audioPath}/${file.metadata.slug}`;
 
   await file.save();
 
-  console.log(
+  logger.info(
     `Audio file ${file.metadata.slug} synthesized. ${new Date().toLocaleString(
       "en-SG",
       {

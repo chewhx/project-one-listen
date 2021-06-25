@@ -3,7 +3,7 @@ function splitText(text, charCount) {
   // Prep variables to execute split
   let i = 0;
   let contentArray = text.split(" ");
-  let parts = Math.ceil(charCount / 4999);
+  let parts = Math.ceil(charCount / 4500);
   let start = 0;
   let mid = Math.ceil(contentArray.length / parts);
   let end = mid;

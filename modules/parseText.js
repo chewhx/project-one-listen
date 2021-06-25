@@ -1,12 +1,13 @@
 const { Readable } = require("stream");
+const logger = require("pino")({ prettyPrint: true });
 const Mercury = require("@postlight/mercury-parser");
 const slug = require("../utils/slug");
 const bucket = require("../config/gcp/bucket");
 
-async function mercuryParser(file) {
+async function parseText(file) {
   try {
-    // Log
-    console.log(`Starting parser for ${file.sourceUrl}`);
+    // Logget
+    logger.info(`Running text parser`);
 
     // Parse the text with Mercury
     const res = await Mercury.parse(file.sourceUrl, { contentType: "text" });
@@ -28,25 +29,26 @@ async function mercuryParser(file) {
     });
 
     const write = bucket
-      .file(`${file.owner}/parser/${file.metadata.slug}`)
+      .file(`${file.metadata.parserPath}/${file.metadata.slug}`)
       .createWriteStream({ metadata: { contentType: "application/json" } });
 
     read.push(JSON.stringify(res));
     read.push(null);
     read
       .pipe(write)
-      .on("finish", () => console.log("file uploaded"))
+      .on("finish", () =>
+        logger.info(`${file.metadata.slug} uploaded to Google Cloud Storage`)
+      )
       .on("error", (err) => console.log(err));
     read.on("end", () => {
       write.end();
     });
-    // read.on("data", (chunk) => console.log(chunk));
 
     return true;
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    logger.error(err);
     return false;
   }
 }
 
-module.exports = mercuryParser;
+module.exports = parseText;

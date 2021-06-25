@@ -1,6 +1,7 @@
 const schedule = require("node-schedule");
-const MongoFile = require("../config/mongoose/File");
-const mercuryParser = require("../modules/mercuryParser");
+const logger = require("pino")({ prettyPrint: true });
+const MongoFile = require("../config/mongoose/Resource");
+const parseText = require("../modules/parseText");
 
 // This scheduled job will pull the latest file from Mongo with queue: "Parser" and parse the sourceUrl
 const parserScheduleRules = new schedule.RecurrenceRule();
@@ -14,8 +15,8 @@ const parserJob = schedule.scheduleJob(parserScheduleRules, async () => {
   // get a file on parser queue from mongo
   const file = await MongoFile.findOne({ "job.queue": "Parser" });
   if (!file) {
-    console.log(
-      `No file queued for mercuryParser. ${new Date().toLocaleString("en-SG", {
+    logger.warn(
+      `No file queued for text parsing. ${new Date().toLocaleString("en-SG", {
         dateStyle: "long",
         timeStyle: "long",
       })}`.yellow
@@ -25,7 +26,7 @@ const parserJob = schedule.scheduleJob(parserScheduleRules, async () => {
   // set parserbusy to true
   parserBusy = true;
   // pass into mercury parser
-  const parserSuccesss = await mercuryParser(file);
+  const parserSuccesss = await parseText(file);
   if (!parserSuccesss) {
     file.job.status = "Error";
   }
@@ -33,7 +34,7 @@ const parserJob = schedule.scheduleJob(parserScheduleRules, async () => {
   file.job.queue = "Audio";
   await file.save();
 
-  console.log(
+  logger.info(
     `Text file ${file.metadata.slug} parsed. ${new Date().toLocaleString(
       "en-SG",
       {
