@@ -1,6 +1,6 @@
 const schedule = require("node-schedule");
-const MongoFile = require("../config/mongoose/File");
-const mercuryParser = require("../modules/mercuryParser");
+const MongoFile = require("../models/Resource");
+const mercuryParser = require("../services/parser/index");
 
 // This scheduled job will pull the latest file from Mongo with queue: "Parser" and parse the sourceUrl
 const parserScheduleRules = new schedule.RecurrenceRule();

@@ -1,33 +1,11 @@
-const gSpeechClient = require("../config/gcp/gSpeechClient");
-const bucket = require("../config/gcp/bucket");
-const splitText = require("../utils/splitText");
+const bucket = require("../../config/gcp/bucket");
+const splitText = require("../../utils/splitText");
+const synth = require("./synth");
 
-async function synthText(textContent) {
+async function googleSpeech(resource) {
   try {
-    if (!textContent || typeof textContent !== "string") return undefined;
-    const request = {
-      input: { text: textContent },
-      voice: {
-        languageCode: "en-US",
-        ssmlGender: "FEMALE",
-        voiceName: "en-US-Standard-F",
-      },
-      audioConfig: { audioEncoding: "MP3" },
-    };
-
-    const [response] = await gSpeechClient.synthesizeSpeech(request);
-    return response.audioContent;
-  } catch (error) {
-    return error;
-  }
-}
-
-async function googleSpeech(file) {
-  try {
-    console.log(`Synthesizing audio clip...`);
-
     // Declare function MP3 file path
-    const FILEPATH = `${file.owner}/audio/${file.metadata.slug}`;
+    const FILEPATH = `${resource.path.audio}/${resource.metadata.slug}`;
 
     // Check if audio file already exists
     const [audioFileExists] = await bucket.file(FILEPATH).exists();
@@ -35,13 +13,13 @@ async function googleSpeech(file) {
     if (audioFileExists) {
       console.log("Audio file already downloaded.");
 
-      await file.save();
+      await resource.save();
       return true;
     }
 
     // Read JSON from google cloud storage
     const [res] = await bucket
-      .file(`${file.owner}/parser/${file.metadata.slug}`)
+      .file(`${resource.path.parser}/${resource.metadata.slug}`)
       .download();
 
     const json = JSON.parse(res.toString());
@@ -50,7 +28,7 @@ async function googleSpeech(file) {
     const charCountExceeds = json.char_count >= 5000;
 
     // create write stream for google cloud storage
-    const gcsWritable = bucket.file(FILEPATH).createWriteStream({
+    const writableStream = bucket.file(FILEPATH).createWriteStream({
       metadata: {
         contentType: "audio/mpeg",
       },
@@ -67,15 +45,16 @@ async function googleSpeech(file) {
 
       // Write the response to google cloud storage
 
-      const uploadRes = gcsWritable._write(audio, "binary");
+      writableStream
+        ._write(audio, "binary")
+        .on("error", (err) => console.log(err))
+        .end(() =>
+          console.log(
+            `Audio download complete. ${new Date().toLocaleString("en-SG")}`
+          )
+        );
 
-      gcsWritable.end(() =>
-        console.log(
-          `Audio download complete. ${new Date().toLocaleString("en-SG")}`
-        )
-      );
-
-      await file.save();
+      await resource.save();
       return true;
     }
 
@@ -87,13 +66,13 @@ async function googleSpeech(file) {
       const chunks = splitText(content, char_count);
 
       for (let each of chunks) {
-        const audio = await synthText(each);
-        gcsWritable._write(audio, "binary", (err) => {
-          if (err) console.log(err);
-        });
+        const audio = await synth(each);
+        writableStream
+          ._write(audio, "binary")
+          .on("error", (err) => console.log(err));
       }
 
-      gcsWritable.end(() =>
+      writableStream.end(() =>
         console.log(
           `charCountExceeds end \n Audio download complete. ${new Date().toLocaleString(
             "en-SG"

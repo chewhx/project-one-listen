@@ -1,10 +1,10 @@
-const MyError = require("../config/myErrorClass");
+const createError = require("http-errors");
 
 const private = (req, res, next) => {
   if (req.isAuthenticated()) {
     next();
   } else {
-    throw new MyError(401, "Unauthorised");
+    throw createError(401, "Unauthorised");
   }
 };
 

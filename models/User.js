@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema(
     name: String,
     email: String,
     photo: String,
+    telegramId: String,
     googleId: String,
     googleToken: {
       access_token: { type: String, select: false },
@@ -54,6 +55,23 @@ Date.prototype.addHours = function (h) {
 Date.prototype.addMonths = function (h) {
   this.setTime(this.getTime() + h * 30 * 24 * 60 * 60 * 1000);
   return this;
+};
+
+userSchema.methods.checkLimits = function () {
+  // Check user quotas, daily and monthly limits
+  const fileLimitExceeded = this.files.owner.length >= this.files.ownerLimit;
+  const dailyLimitsExceeded = this.limits.perDayUsed >= this.limits.perDayLimit;
+  const monthlyLimitsExceeded =
+    this.limits.perMonthUsed >= this.limits.perMonthLimit;
+  // If quota exceeds, throw error
+  if (fileLimitExceeded || dailyLimitsExceeded || monthlyLimitsExceeded) {
+    let message = "";
+    if (fileLimitExceeded) message += "Files limit exceeded. ";
+    if (dailyLimitsExceeded) message += "Daily limits exceeded. ";
+    if (monthlyLimitsExceeded) message += "Monthly limits exceeded. ";
+    return true;
+  }
+  return false;
 };
 
 // Reset day and month limits on every post

@@ -1,5 +1,6 @@
-const MongoUser = require("../config/mongoose/User");
-const MongoFile = require("../config/mongoose/File");
+const MongoUser = require("../../models/User");
+const MongoResource = require("../../models/Resource");
+const createHttpError = require("http-errors");
 
 //  ---------------------------------------------------------------------------------------
 //  @desc     User profile page
@@ -9,7 +10,7 @@ const MongoFile = require("../config/mongoose/File");
 exports.get_user_profile = async (req, res, next) => {
   try {
     if (req.user._id != req.params.id) {
-      throw Error("Not authorised");
+      throw createHttpError("Not authorised");
     }
 
     const user = await MongoUser.findById(req.user._id).populate({
@@ -33,7 +34,7 @@ exports.delete_user = async (req, res, next) => {
     // Get user from Mongo
     const user = await MongoUser.findById(req.user._id);
     // Delete all files from user
-    await MongoFile.deleteMany({ _id: { $in: user.files.owner } });
+    await MongoResource.deleteMany({ _id: { $in: user.files.owner } });
     // Delete user from mongo
     user.remove();
     // Logout user
@@ -72,7 +73,7 @@ exports.edit_user = async (req, res, next) => {
       new: true,
     });
     if (!user) {
-      throw Error;
+      throw createHttpError(404, `No user found with ${req.params.id}`);
     }
     res.status(200).json(user);
   } catch (err) {

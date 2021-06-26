@@ -1,5 +1,5 @@
 const schedule = require("node-schedule");
-const MongoFile = require("../config/mongoose/File");
+const MongoFile = require("../mongoose/File");
 const googleSpeech = require("../modules/googleSpeech");
 
 // This scheduled job will pull the latest file from Mongo with queue: "Audio" and synthesize the text content into audio

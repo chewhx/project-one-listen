@@ -1,19 +1,19 @@
 const mongoose = require("mongoose");
 
-const fileSchema = new mongoose.Schema(
+const resourceSchema = new mongoose.Schema(
   {
     sourceUrl: { type: String, default: "" },
-    privateOnly: { type: Boolean, default: true },
-    kind: { type: String, enum: ["Article"] },
     selfLink: { type: String, default: "" },
-    resourcePath: { type: String, default: "" },
-    resourceName: { type: String, default: "" },
     metadata: {
       title: { type: String, default: "" },
       slug: { type: String, default: "" },
       excerpt: { type: String, default: "" },
       wordCount: { type: Number, default: 0 },
       charCount: { type: Number, default: 0 },
+    },
+    paths: {
+      parser: { type: String, default: "" },
+      audio: { type: String, default: "" },
     },
     job: {
       status: {
@@ -33,8 +33,5 @@ const fileSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// fileSchema.statics.dequeue = function (jobQueue) {
-//   return this.model.findOne({ queue: jobQueue });
-// };
 
-module.exports = new mongoose.model("File", fileSchema);
+module.exports = new mongoose.model("Resource", resourceSchema);
