@@ -1,41 +1,34 @@
 const bucket = require("../../config/gcp/bucket");
 const splitText = require("../../utils/splitText");
 const synth = require("./synth");
+const bucketFileExists = require("./bucketFileExists");
+const logger = require("pino")({ prettyPrint: true });
+const writeToBucket = require("../parser/writeToBucket");
 
 async function googleSpeech(resource) {
   try {
     // Declare function MP3 file path
-    const FILEPATH = `${resource.path.audio}/${resource.metadata.slug}`;
+    const audioFilePath = `${resource.path.audio}/${resource.metadata.slug}`;
 
     // Check if audio file already exists
-    const [audioFileExists] = await bucket.file(FILEPATH).exists();
+    const audioFileExists = await bucketFileExists(audioFilePath);
 
     if (audioFileExists) {
-      console.log("Audio file already downloaded.");
+      logger.info(`${audioFilePath} audiofile already synthesized.`);
 
       await resource.save();
       return true;
     }
 
     // Read JSON from google cloud storage
-    const [res] = await bucket
-      .file(`${resource.path.parser}/${resource.metadata.slug}`)
-      .download();
+    const [res] = await bucket.file(audioFilePath).download();
 
     const json = JSON.parse(res.toString());
 
     // check character count
     const charCountExceeds = json.char_count >= 5000;
 
-    // create write stream for google cloud storage
-    const writableStream = bucket.file(FILEPATH).createWriteStream({
-      metadata: {
-        contentType: "audio/mpeg",
-      },
-    });
-
-    //  charCountExceeds = false, send text for synth
-
+    // If charactouer count does not exceed
     if (!charCountExceeds) {
       // Extract content to be converted
       const { content } = json;
@@ -44,17 +37,10 @@ async function googleSpeech(resource) {
       const audio = await synthText(content);
 
       // Write the response to google cloud storage
+      await writeToBucket.singleWrite(audioFilePath, audio, {
+        metadata: { contentType: "audio/mpeg" },
+      });
 
-      writableStream
-        ._write(audio, "binary")
-        .on("error", (err) => console.log(err))
-        .end(() =>
-          console.log(
-            `Audio download complete. ${new Date().toLocaleString("en-SG")}`
-          )
-        );
-
-      await resource.save();
       return true;
     }
 
@@ -65,23 +51,14 @@ async function googleSpeech(resource) {
       const { content, char_count } = json;
       const chunks = splitText(content, char_count);
 
-      for (let each of chunks) {
-        const audio = await synth(each);
-        writableStream
-          ._write(audio, "binary")
-          .on("error", (err) => console.log(err));
-      }
+      await writeToBucket.multipleWrite(audioFilePath, chunks, synth, {
+        metadata: { contentType: "audio/mpeg" },
+      });
 
-      writableStream.end(() =>
-        console.log(
-          `charCountExceeds end \n Audio download complete. ${new Date().toLocaleString(
-            "en-SG"
-          )}`
-        )
-      );
+      return true;
     }
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    logger.error(err);
     return false;
   }
 }

@@ -1,8 +1,12 @@
 const { Stream } = require("stream");
 const Mercury = require("@postlight/mercury-parser");
-const slug = require("../../utils/slug");
-const bucket = require("../../config/gcp/bucket");
+const updateResourceMeta = require("./updateResourceMeta");
+const writeToBucket = require("./writeToBucket");
 const logger = require("pino")({ prettyPrint: true });
+
+// 1. parse the article
+// 2. update resource details
+// 3. write json file to google cloud storage
 
 const mercuryParser = async (resource) => {
   try {
@@ -12,46 +16,15 @@ const mercuryParser = async (resource) => {
     });
     if (!res) throw Error;
 
-    // Assign response meta to file
-    resource.metadata.title = res.title;
-    resource.metadata.slug = slug(res.title);
-    resource.metadata.excerpt = res.excerpt;
-    resource.metadata.wordCount = res.word_count;
+    // Declare filePath
+    const parserFilePath = `${resource.paths.parser}/${resource.metadata.slug}`;
+    // Update metadata for resource
+    await updateResourceMeta(resource, res);
 
-    // Count characters and add to response
-    res.char_count = res.content.length;
-    resource.metadata.charCount = res.char_count;
-
-    // Set default file paths for resource
-    resource.paths.parser = `${resource.owner}/parser`;
-    resource.paths.audio = `${resource.owner}/audio`;
-
-    // Save resource at mongo level
-    resource.save();
-
-    // Create read stream to read res from mercury parser
-    const readStream = new Stream.Readable({
-      read() {},
+    // Write res to google cloud storage as json
+    await writeToBucket.singleWrite(parserFilePath, res, {
+      metadata: { contentType: "application/json" },
     });
-
-    // Create a write stream to write to cloud storage
-    const writableStream = bucket
-      .file(`${resource.paths.parser}/${resource.metadata.slug}`)
-      .createWriteStream({ metadata: { contentType: "application/json" } });
-
-    // Push res into readStream
-    readStream.push(JSON.stringify(res));
-
-    // Push null to end readStream
-    readStream.push(null);
-    // Pipe readStream into writeStream
-    readStream
-      .pipe(writableStream)
-      .on("finish", () => logger.info(`File uploaded`))
-      .on("error", (err) => console.log(err))
-      .on("end", () => {
-        writableStream.end();
-      });
 
     return true;
   } catch (err) {
