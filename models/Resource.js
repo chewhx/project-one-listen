@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const resourceSchema = new mongoose.Schema(
   {
+    type: { type: String, enum: ["Article", "Text"] },
     sourceUrl: { type: String, default: "" },
     selfLink: { type: String, default: "" },
     metadata: {
@@ -32,6 +33,5 @@ const resourceSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
 
 module.exports = new mongoose.model("Resource", resourceSchema);

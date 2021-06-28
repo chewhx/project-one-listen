@@ -24,7 +24,6 @@ exports.get_user_profile = async (req, res, next) => {
   }
 };
 
-
 //  ---------------------------------------------------------------------------------------
 //  @desc     Delete user account and files
 //  @route    DELETE  /user/:id

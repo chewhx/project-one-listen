@@ -1,7 +1,4 @@
-const { EventEmitter } = require("events");
+const parserEvent = require("./parserEvent");
+const synthEvent = require("./synthEvent");
 
-const globalEvent = new EventEmitter();
-
-
-
-module.exports = globalEvent;
+module.exports = { parserEvent, synthEvent };

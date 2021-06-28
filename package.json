@@ -4,8 +4,8 @@
   "description": "Node JS application parses text from online articles and convert to audio.",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js",
+    "dev": "nodemon server",
+    "start": "node server",
     "build": "cd client/ && npm install && npm run build"
   },
   "engines": {
@@ -47,6 +47,7 @@
     "node-schedule": "^2.0.0",
     "passport": "^0.4.1",
     "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0",
     "pino": "^6.11.3",
     "pino-pretty": "^5.1.0",
     "slugify": "^1.5.3"

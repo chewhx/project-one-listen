@@ -25,6 +25,7 @@ app.use(
 );
 
 // Passport (after cookie session)
+require("../config/passport/local");
 require("../config/passport/google");
 app.use(passport.initialize());
 app.use(passport.session());

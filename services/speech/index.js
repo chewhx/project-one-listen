@@ -1,29 +1,36 @@
 const bucket = require("../../config/gcp/bucket");
 const splitText = require("../../utils/splitText");
 const synth = require("./synth");
-const bucketFileExists = require("./bucketFileExists");
+const bucketFileExists = require("../gcp/bucketFileExists");
 const logger = require("pino")({ prettyPrint: true });
-const writeToBucket = require("../parser/writeToBucket");
+const writeToBucket = require("../gcp/writeToBucket");
+const readFileFromBucket = require("../gcp/readFromBucket");
+const createHttpError = require("http-errors");
 
 async function googleSpeech(resource) {
   try {
     // Declare function MP3 file path
-    const audioFilePath = `${resource.path.audio}/${resource.metadata.slug}`;
+    const audioFilePath = `${resource.paths.audio}/${resource.metadata.slug}`;
+    const parserFilePath = `${resource.paths.parser}/${resource.metadata.slug}`;
 
     // Check if audio file already exists
     const audioFileExists = await bucketFileExists(audioFilePath);
 
     if (audioFileExists) {
       logger.info(`${audioFilePath} audiofile already synthesized.`);
-
-      await resource.save();
       return true;
     }
 
     // Read JSON from google cloud storage
-    const [res] = await bucket.file(audioFilePath).download();
+    const { res, encoding } = await readFileFromBucket(parserFilePath);
 
-    const json = JSON.parse(res.toString());
+    if (!res)
+      throw createHttpError(
+        500,
+        `googleSpeech: json file ${parserFilePath} does not exist`
+      );
+
+    const json = JSON.parse(res.toString(encoding));
 
     // check character count
     const charCountExceeds = json.char_count >= 5000;
@@ -34,7 +41,7 @@ async function googleSpeech(resource) {
       const { content } = json;
 
       // Synth text
-      const audio = await synthText(content);
+      const audio = await synth(content);
 
       // Write the response to google cloud storage
       await writeToBucket.singleWrite(audioFilePath, audio, {

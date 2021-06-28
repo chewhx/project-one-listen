@@ -1,7 +1,6 @@
-const createHttpError = require("http-errors");
 const bucket = require("../../config/gcp/bucket");
+const createHttpError = require("http-errors");
 const filePathCheck = require("../../utils/filePathCheck");
-const { Stream } = require("stream");
 
 const readFileFromBucket = async (filePath) => {
   // Check file path
@@ -18,36 +17,17 @@ const readFileFromBucket = async (filePath) => {
     );
 
   let encoding = "utf-8";
-  switch (metadata["contentType"]) {
+  switch (metadata[0]["contentType"]) {
     case "audio/mpeg":
       encoding = "binary";
     default:
       null;
   }
-  // create a write stream
-  const writeStream = new Stream.Writable({
-    write() {},
-  });
 
-  writeStream.setDefaultEncoding(encoding);
+  // Download file from bucket
+  const [res] = await bucket.file(filePath).download();
 
-  // Create readable stream from file object and pipe to write stream
-  bucket
-    .file(filePath)
-    .createReadStream()
-    .on("pipe", () => {
-      console.log("piping");
-    })
-    .on("error", (err) => logger.error(err))
-    .on("end", function () {
-      writeStream.end();
-      return writeStream;
-    })
-    .pipe(writeStream);
+  return { res, encoding };
 };
-
-readFileFromBucket(
-  "undefined/parser/canada-shaken-by-new-discovery-of-unmarked-gra"
-).then((response) => console.log(response));
 
 module.exports = readFileFromBucket;

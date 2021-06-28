@@ -1,6 +1,7 @@
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../../models/User");
+const logger = require("pino")({ prettyPrint: true });
 
 passport.use(
   new GoogleStrategy(
@@ -47,7 +48,9 @@ passport.use(
           lastLogin: new Date(),
         });
         if (newUser) {
-          console.log("new user created");
+          logger.success(
+            `passport GoogleStrategy: ${newUser._id} - new user created`
+          );
           const { _id, name, email, photo, googleId, lastLogin } = newUser;
           return done(null, { _id, name, email, photo, googleId, lastLogin });
         }

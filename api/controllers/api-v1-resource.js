@@ -1,10 +1,12 @@
 const MongoResource = require("../../models/Resource");
 const MongoUser = require("../../models/User");
+const { parserEvent, synthEvent } = require("../../events");
 const createError = require("http-errors");
+const writeToBucket = require("../../services/gcp/writeToBucket");
 
 //  ---------------------------------------------------------------------------------------
-//  @desc     Get all files
-//  @route    GET  /file
+//  @desc     Get all resources
+//  @route    GET  /resource
 //  @access   Admin
 
 exports.get_all_resources = async (req, res, next) => {
@@ -39,23 +41,83 @@ exports.get_resource = async (req, res, next) => {
 };
 
 //  ---------------------------------------------------------------------------------------
-//  @desc     Enqueue a file
-//  @route    POST  /file
+//  @desc     Enqueue a resource for body text
+//  @route    POST  /resource/text
 //  @access   Private
 
-exports.post_file = async (req, res, next) => {
+exports.post_resource_text = async (req, res, next) => {
   try {
+    // Declare variable beacuse they will not be set by mercury parser
+    const slug = req.body.slug || Date.now();
+    const title = req.body.title || `${Date.now()}-${req.user._id}`;
+    const char_count = req.body.char_count || req.body.text.length;
+    const word_count = req.body.word_count || req.body.text.split(" ").length;
+
     // Create resource
     const resource = await MongoResource.create({
-      sourceUrl: req.body.url,
+      type: "Text",
+      job: {
+        queue: "Audio",
+      },
+      metadata: { slug },
+      paths: {
+        parser: `${req.user._id}/parser`,
+        audio: `${req.user._id}/audio`,
+      },
       owner: req.user._id,
     });
+
+    // Save body text to google cloud as json
+    const parserFilePath = `${resource.paths.parser}/${resource.metadata.slug}`;
+    const object = {
+      content: req.body.text,
+      word_count,
+      char_count,
+      slug,
+      title,
+    };
+    await writeToBucket.singleWrite(parserFilePath, JSON.stringify(object), {
+      metadata: { contentType: "application/json" },
+    });
+
     // Push file to user files array, and update limits
     const user = await MongoUser.findById(req.user._id);
     user.limits.perDayUsed += 1;
     user.limits.perMonthUsed += 1;
     user.files.owner.push(resource._id);
-    user.save();
+    await user.save();
+
+    // Trigger synth event
+    synthEvent.emit("start");
+    res.status(201).send(resource);
+  } catch (err) {
+    next(err);
+  }
+};
+
+//  ---------------------------------------------------------------------------------------
+//  @desc     Enqueue a resource
+//  @route    POST  /resource/url
+//  @access   Private
+
+exports.post_resource_url = async (req, res, next) => {
+  try {
+    // Create resource
+    const resource = await MongoResource.create({
+      type: "Article",
+      sourceUrl: req.body.url,
+      owner: req.user._id,
+    });
+
+    // Push file to user files array, and update limits
+    const user = await MongoUser.findById(req.user._id);
+    user.limits.perDayUsed += 1;
+    user.limits.perMonthUsed += 1;
+    user.files.owner.push(resource._id);
+    await user.save();
+
+    // Trigger parser event
+    parserEvent.emit("start");
     res.status(201).send(resource);
   } catch (err) {
     next(err);
