@@ -12,11 +12,10 @@ const SCOPES = [
 //  @route    POST  /auth/local
 //  @access   Public
 
-
 router.post(
   "/local",
   passport.authenticate("local", { failureRedirect: "/login" }),
-  async (req, res) => res.redirect("/")
+  async (req, res) => res.redirect(`/`)
 );
 
 //  ---------------------------------------------------------------------------------------
@@ -44,9 +43,9 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
 
 //  ---------------------------------------------------------------------------------------
 //  @desc     Check user auth
-//  @route    GET  /auth/:userId
+//  @route    GET  /auth/user
 //  @access   Public
-router.get("/:userId", async (req, res, next) => {
+router.get("/user", async (req, res, next) => {
   try {
     if (req.isAuthenticated()) {
       res.status(200).send(req.user);

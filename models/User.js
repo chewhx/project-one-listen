@@ -28,14 +28,14 @@ const userSchema = new mongoose.Schema(
     },
     files: {
       ownerLimit: { type: Number, default: 10 },
-      owner: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
+      owner: [{ type: mongoose.Schema.Types.ObjectId, ref: "Resource" }],
       viewerLimit: { type: Number, default: 50 },
-      viewer: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
+      viewer: [{ type: mongoose.Schema.Types.ObjectId, ref: "Resource" }],
     },
     downloads: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "File",
+        ref: "Resource",
         downloadedDate: Date,
       },
     ],

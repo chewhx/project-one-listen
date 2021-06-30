@@ -158,7 +158,7 @@ exports.post_resource_url = async (req, res, next) => {
 //  @route    PUT  /:id
 //  @access   Private
 
-exports.edit_file = async (req, res, next) => {
+exports.edit_resource = async (req, res, next) => {
   try {
     // Update file
     const file = await MongoResource.findByIdAndUpdate(
@@ -180,32 +180,32 @@ exports.edit_file = async (req, res, next) => {
 };
 
 //  ---------------------------------------------------------------------------------------
-//  @desc     Delete a file
-//  @route    DELETE  /file/:id
+//  @desc     Delete a resource
+//  @route    DELETE  /resource/:id
 //  @access   Private
 
-// exports.delete_file = async (req, res, next) => {
-//   try {
-//     // Pull from files array, decrease filesLength
-//     await MongoUser.findByIdAndUpdate(
-//       req.user._id,
-//       {
-//         $pull: { "files.owner": req.params.id },
-//       },
-//       { new: true }
-//     );
+exports.delete_resource = async (req, res, next) => {
+  try {
+    // Pull from files array, decrease filesLength
+    await MongoUser.findByIdAndUpdate(
+      req.user._id,
+      {
+        $pull: { "files.owner": req.params.id },
+      },
+      { new: true }
+    );
 
-//     // Find find from db
-//     const file = await MongoFile.findById(req.params.id);
+    // Find find from db
+    const file = await MongoFile.findById(req.params.id);
 
-//     // Delete file from Google Cloud Storage
-//     await deleteFileGStorage(file);
+    // Delete file from Google Cloud Storage
+    await deleteFileGStorage(file);
 
-//     // Delete file from db
-//     await file.remove();
+    // Delete file from db
+    await file.remove();
 
-//     res.status(200).send(`File ${req.params.id} deleted.`);
-//   } catch (err) {
-//     next(err);
-//   }
-// };
+    res.status(200).send(`File ${req.params.id} deleted.`);
+  } catch (err) {
+    next(err);
+  }
+};

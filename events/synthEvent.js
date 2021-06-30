@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { EventEmitter } = require("events");
 const speech = require("../services/speech");
 const MongoResource = require("../models/Resource");
@@ -27,6 +28,7 @@ synthEvent.on("start", () => {
     await speech(resource);
     resource.job.status = "Completed";
     resource.job.queue = "None";
+    resource.selfLink = `https://storage.googleapis.com/${process.env.GCP_BUCKET}/${resource.owner}/audio/${resource.metadata.slug}`;
     await resource.save();
 
     // Set indicator to false
@@ -40,5 +42,6 @@ synthEvent.on("stop", () => {
   logger.info("synthEvent stop");
   clearInterval(synthEvent.schedule);
 });
+
 
 module.exports = synthEvent;

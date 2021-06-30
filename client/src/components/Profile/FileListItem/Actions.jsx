@@ -1,62 +1,47 @@
 import React from "react";
-import { Row, Col, Button } from "react-bootstrap";
+import { Row, Dropdown, Alert } from "react-bootstrap";
 import axios from "axios";
 
-const FileListItemActions = ({ fileId }) => {
+const FileListItemActions = ({ fileId, hidden, ...rest }) => {
   const deleteFile = async (fileId) => {
     const res = await axios.delete(`/file/${fileId}`);
     console.log(res);
   };
-  const [showDeleteModal, setShowDeleteModal] = React.useState("hidden");
+  const [showDeleteModal, setShowDeleteModal] = React.useState("none");
   return (
     <>
-      <Row>
-        <Col xs={12}>
-          <ul className="list-inline my-2 float-right">
-            <li className="list-inline-item">
-              <Button variant="link">Email</Button>
-            </li>
-            <li className="list-inline-item">
-              <Button variant="link">Save to GDrive</Button>
-            </li>
-            <li className="list-inline-item">
-              <Button variant="link">Download</Button>
-            </li>
-            <li className="list-inline-item">
-              <Button
-                variant="link"
-                onClick={() => setShowDeleteModal("visible")}
-              >
-                Delete
-              </Button>
-            </li>
-          </ul>
-        </Col>
-        <Col
-          xs={12}
-          style={{ visibility: showDeleteModal }}
-          className="d-flex justify-content-around"
-        >
-          <small>
-            <strong>
-              Are you sure you want to delete? This cannot be undone.
-            </strong>
-          </small>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => deleteFile(fileId)}
-          >
+      <Dropdown {...rest}>
+        <Dropdown.Toggle
+          hidden={hidden}
+          variant="light"
+          id={`dropdown-actions-${fileId}`}
+        ></Dropdown.Toggle>
+
+        <Dropdown.Menu>
+          <Dropdown.Item>Email</Dropdown.Item>
+          <Dropdown.Item>Save to GDrive</Dropdown.Item>
+          <Dropdown.Item>Download</Dropdown.Item>
+          <Dropdown.Item onClick={() => setShowDeleteModal("flex")}>
             Delete
-          </Button>
-          <Button
-            variant="warning"
-            size="sm"
-            onClick={() => setShowDeleteModal("hidden")}
+          </Dropdown.Item>
+          <Dropdown.Item></Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
+      <Row>
+        <Alert
+          variant="secondary"
+          style={{ display: showDeleteModal }}
+          className="w-100 justify-content-around"
+        >
+          Are you sure you want to delete? This cannot be undone.
+          <Alert.Link onClick={() => deleteFile(fileId)}>Delete</Alert.Link>
+          <Alert.Link
+            className="text-primary"
+            onClick={() => setShowDeleteModal("none")}
           >
-            <strong>Cancel</strong>
-          </Button>
-        </Col>
+            Cancel
+          </Alert.Link>
+        </Alert>
       </Row>
     </>
   );
