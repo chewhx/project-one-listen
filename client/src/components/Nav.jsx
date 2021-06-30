@@ -7,42 +7,11 @@ import {
   NavDropdown,
   Image,
 } from "react-bootstrap";
-// import { useQuery } from "react-query";
-import { NavLink, useHistory } from "react-router-dom";
+
+import { NavLink } from "react-router-dom";
 import { LinkContainer } from "react-router-bootstrap";
-import axios from "axios";
 
-const Nav_ = () => {
-  const history = useHistory();
-
-  const [user, setUser] = React.useState();
-
-  React.useEffect(() => {
-    axios
-      .get(`/auth/user`)
-      .then((res) => {
-        setUser(res.data);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
-
-  // const { data: user, status } = useQuery("user", getUser, {
-  //   keepPreviousData: true,
-  //   refetchOnMount: true,
-  //   refetchOnWindowFocus: false,
-  //   refetchOnReconnect: true,
-  // });
-
-  const logoutHandler = async () => {
-    const { status } = await axios.get(`/logout`);
-    setUser({});
-    if (status === 200 || status === 302) {
-      history.replace(`/`);
-    }
-  };
-
+const Nav_ = ({ user, logoutHandler }) => {
   return (
     <>
       <Navbar className="sticky-top" bg="dark" variant="dark" expand="lg">
@@ -69,9 +38,7 @@ const Nav_ = () => {
             ) : (
               <Nav className="d-block d-lg-none">
                 <LinkContainer to={`/signin`}>
-                  <Nav.Item>
-                    <Nav.Link>Sign in</Nav.Link>
-                  </Nav.Item>
+                  <Nav.Link>Sign in</Nav.Link>
                 </LinkContainer>
               </Nav>
             )}
@@ -123,7 +90,9 @@ const Nav_ = () => {
                 </NavDropdown>
               </>
             ) : (
-              <Nav.Link href="/signin">Sign in</Nav.Link>
+              <LinkContainer to={`/signin`}>
+                <Nav.Link>Sign in</Nav.Link>
+              </LinkContainer>
             )}
           </Nav>
         </Container>

@@ -15,7 +15,7 @@ const SCOPES = [
 router.post(
   "/local",
   passport.authenticate("local", { failureRedirect: "/login" }),
-  async (req, res) => res.redirect(`/`)
+  async (req, res) => res.status(200).json(req.user)
 );
 
 //  ---------------------------------------------------------------------------------------

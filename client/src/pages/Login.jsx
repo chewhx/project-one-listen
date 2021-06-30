@@ -9,34 +9,12 @@ import {
   Image,
 } from "react-bootstrap";
 import { Formik } from "formik";
-import axios from "axios";
 
-const Login = () => {
+
+
+const Login = ({loginHandler}) => {
   const form = React.createRef();
-  const [remember, setRemember] = React.useState(false);
-  React.useEffect(() => {
-    const hasRemember = localStorage.getItem("one-listen-remember-email");
 
-    if (hasRemember) {
-      form.current.value = hasRemember;
-      setRemember(true);
-      return;
-    }
-    if (remember && form?.current?.value) {
-      localStorage.setItem("one-listen-remember-email", form.current.value);
-      return;
-    }
-  }, [remember, form]);
-
-  const onSubmitHandler = async (values) => {
-    if (remember) {
-      localStorage.setItem("one-listen-remember-email", values.email);
-    }
-    await axios.post(`/auth/local`, {
-      email: values.email,
-      password: values.password,
-    });
-  };
 
   return (
     <main className="bg-dark" style={{ minHeight: "100vh" }}>
@@ -50,7 +28,7 @@ const Login = () => {
                     style={{ width: "125px" }}
                     className="my-4"
                     roundedCircle
-                    src={process.env.PUBLIC_URL + "/images/icons/brand.png"}
+                    src={process.env.PUBLIC_URL + "/image/icons/brand.png"}
                     alt="brand-logo"
                   />
                   <h4>Sign into One Listen</h4>
@@ -59,7 +37,7 @@ const Login = () => {
                   block
                   variant="danger"
                   className="my-4"
-                  href="http://localhost:5000/auth/google"
+                  href="/auth/google"
                 >
                   <i className="bi bi-google mr-3"></i>Sign in with Google
                 </Button>
@@ -75,7 +53,7 @@ const Login = () => {
                 <Formik
                   initialValues={{}}
                   enableReinitialize={true}
-                  onSubmit={onSubmitHandler}
+                  onSubmit={loginHandler}
                 >
                   {({ values, handleChange, handleSubmit }) => {
                     return (
@@ -103,21 +81,7 @@ const Login = () => {
                             onChange={handleChange}
                           />
                         </Form.Group>
-                        <Form.Check
-                          type="checkbox"
-                          label="Remember Me"
-                          checked={remember}
-                          onChange={() => {
-                            setRemember((prev) => {
-                              if (prev) {
-                                localStorage.removeItem(
-                                  "one-listen-remember-email"
-                                );
-                              }
-                              return !prev;
-                            });
-                          }}
-                        />
+
                         <div className="my-3">
                           <Button block onClick={handleSubmit}>
                             Sign in

@@ -11,7 +11,7 @@ const Home = () => {
             fluid
             roundedCircle
             className="w-25"
-            src={process.env.PUBLIC_URL + "/images/icons/brand.png"}
+            src={process.env.PUBLIC_URL + "/image/icons/brand.png"}
             alt="brand-logo"
           />
 

@@ -31,7 +31,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Static files
-app.use(express.static(path.join(__dirname, "../client/build")));
+app.use(express.static(path.resolve(__dirname, "../client/build")));
 
 const PORT = process.env.PORT || 5000;
 
