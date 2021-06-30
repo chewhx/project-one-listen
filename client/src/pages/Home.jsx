@@ -1,5 +1,6 @@
 import React from "react";
-import { Card, Container, Image, Row, Col } from "react-bootstrap";
+import { Container, Image, Row, Col, ListGroup } from "react-bootstrap";
+import FileListItem from "../components/Profile/FileListItem";
 
 const Home = () => {
   return (
@@ -10,54 +11,68 @@ const Home = () => {
             fluid
             roundedCircle
             className="w-25"
-            src={process.env.PUBLIC_URL + "/images/icons/brand.png"}
+            src={process.env.PUBLIC_URL + "/image/icons/brand.png"}
             alt="brand-logo"
           />
 
-          <h1 className="display-3">One Listen</h1>
-          <h3>Convert web articles to mp3.</h3>
+          <p
+            style={{ fontSize: "clamp(2rem, 5vw, 5rem)" }}
+            className="font-weight-bold"
+          >
+            One Listen
+          </p>
+
+          <p style={{ fontSize: "clamp(1.5rem, 3vw, 3rem)" }}>
+            Convert web articles to mp3.
+          </p>
           <p>
             A web application which converts your web articles into audio files.
             Ideal for readers who want to consume content on-the-go.
           </p>
-          <a className="btn btn-primary" href="/#readme">
-            Get started
-          </a>
-          <a className="btn btn-outline-secondary" href="/#features">
-            Learn more
-          </a>
         </div>
       </div>
 
       <section id="features" className="py-5">
         <Container>
-          <Row>
-            <Col md={4}>
-              <h2>Bring your own content</h2>
-              <p>
-                There are no pre-selected or curated content. You can save any
-                web news articles you want to read. Just as long as their body
-                text can be parsed by the web server.
-              </p>
-            </Col>
-            <Col md={4}>
-              <h2>Listen on speed mode</h2>
-              <p>
-                <a href="https://www.theatlantic.com/technology/archive/2015/06/the-rise-of-speed-listening/396740/">
-                  Speed listening is the new speed reading.
-                </a>
-                It helps us learn more things, quicker. We can always go back to
-                gloss through the details, once we are brought up to speed with
-                the general content.
-              </p>
-            </Col>
-            <Col md={4}>
-              <h2>Upload your own text</h2>
-              <span className="badge badge-primary">Coming soon</span>
-              <p>
-                Paste text or upload your text files. We'll read them back to
-                you.
-              </p>
+          <Row className="justify-content-center">
+            <Col xs={12} md={10}>
+              <ListGroup variant="flush">
+                <FileListItem
+                  disableActions={true}
+                  file={{
+                    _id: "60c5f0c8d79bd5a60d22234d",
+                    metadata: {
+                      title:
+                        "SushiSwap (SUSHI): A Community-Centric Evolution of Uniswap",
+                      slug: "sushiswap-sushi-a-community-centric-evolution-o",
+                      excerpt:
+                        "An overview of Chef Nomi’s community-centric SushiSwap, and how it competes with UniSwap using SUSHI coin, its Sushibar LP token system, and BentoBox.",
+                      wordCount: 1487,
+                      charCount: 9697,
+                    },
+                    job: {
+                      status: "Completed",
+                      queue: "None",
+                    },
+                    sourceUrl:
+                      "https://www.gemini.com/cryptopedia/sushiswap-sushi-coin-sushibar-chef-nomi",
+                    privateOnly: true,
+                    selfLink:
+                      "https://storage.googleapis.com/flashcard-6ec1f.appspot.com/60b7a045e340385fe319fbc8/audio/sushiswap-sushi-a-community-centric-evolution-o",
+                    resourcePath: "",
+                    resourceName: "",
+                    viewers: [],
+                    kind: "Article",
+                    owner: {
+                      $oid: "60b7a045e340385fe319fbc8",
+                    },
+                    createdAt: {
+                      $date: "2021-06-13T11:49:28.338Z",
+                    },
+                    updatedAt: "2021-06-13T11:50:26.162Z",
+                  }}
+                />
+              </ListGroup>
             </Col>
           </Row>
         </Container>
@@ -65,8 +80,8 @@ const Home = () => {
 
       <section id="readme" className="bg-light py-5">
         <Container>
-          <h3>Please read before signing up:</h3>
-          <ol>
+          <p>Disclaimers:</p>
+          <ol className="small">
             <li className="my-1">
               The audio files generated are meant for personal use only. Please
               do not distribute copyrighted materials.
@@ -90,8 +105,8 @@ const Home = () => {
               will be added in the future.
             </li>
             <li className="my-1">
-              You will be requested to <strong>Sign in with Google</strong>,
-              which will grant the web application access to the following:
+              When you <strong>"Sign in with Google"</strong>, which will grant
+              the web application access to the following:
               <ul>
                 <li>Your registered name for the google account</li>
                 <li>Your registered email</li>
@@ -104,7 +119,7 @@ const Home = () => {
                   Drive. It is required for uploading your audio files to Google
                   Drive.
                 </li>
-                <li>
+                {/* <li>
                   <strong>
                     A user account will be created using the information above
                     and are kept in our database. You can see them on your
@@ -112,7 +127,7 @@ const Home = () => {
                     at any time. Consequently, all your files will be deleted
                     forever too.
                   </strong>
-                </li>
+                </li> */}
               </ul>
               <li>
                 Strictly no confidential, illegal, violent, and/or pornographic
@@ -120,27 +135,6 @@ const Home = () => {
               </li>
             </li>
           </ol>
-        </Container>
-      </section>
-
-      <section id="signin" className="py-5">
-        <Container>
-          <Card className="mx-auto my-5" style={{ width: "23rem" }}>
-            <Card.Body>
-              <Card.Title>Create account / Log in</Card.Title>
-              <a className="btn btn-danger btn-block my-5" href="/auth/google">
-                <span>
-                  <i className="bi bi-google mr-3"></i>
-                </span>
-                Sign in with Google
-              </a>
-              <small>
-                Note: The application will be requesting for profile information
-                (name, email, googleId) and access to read and write files to
-                your Google Drive.
-              </small>
-            </Card.Body>
-          </Card>
         </Container>
       </section>
     </div>

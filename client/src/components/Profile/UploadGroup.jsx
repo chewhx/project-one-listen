@@ -1,28 +1,24 @@
 import React from "react";
 import { Formik } from "formik";
 import axios from "axios";
-import { Row, Col, InputGroup, Form, Button } from "react-bootstrap";
+import { Row, Col, Form, Button } from "react-bootstrap";
 import { useAlert } from "react-alert";
 
 const UploadGroup = () => {
   const alert = useAlert();
 
-  const postFile = async (url) => {
+  const postUrlHandler = async (url) => {
     try {
-      const res = await axios.post(`/file`, { url });
-      if (res.status === 201) {
-        alert.success(
-          `Link uploaded successfully. Processing file... ${new Date().toLocaleString(
-            "en-SG",
-            {
-              dateStyle: "long",
-              timeStyle: "long",
-            }
-          )}\n${res.data.sourceUrl}`
-        );
-      }
+      const res = await axios.post(`/api/v1/resource/url`, { url });
+
+      alert.success(
+        `Link uploaded successfully. ${new Date().toLocaleString("en-SG", {
+          dateStyle: "long",
+          timeStyle: "long",
+        })}\n${res.data.sourceUrl}`
+      );
     } catch (err) {
-      alert.error(err.response.data);
+      alert.error(`Error ${err.response.status}: ${err.response.data}`);
       console.error(err.stack);
     }
   };
@@ -30,7 +26,7 @@ const UploadGroup = () => {
   return (
     <Row>
       <Col>
-        <ol className="pl-4 mt-5">
+        <ol className="pl-4">
           <li>
             Submit url to a blog post or news article. Do not submit the same
             article more than once.
@@ -47,7 +43,7 @@ const UploadGroup = () => {
         </ol>
         <Formik
           onSubmit={async (values, { resetForm }) => {
-            await postFile(values.url);
+            await postUrlHandler(values.url);
             resetForm();
           }}
           initialValues={{ url: "" }}
@@ -56,26 +52,25 @@ const UploadGroup = () => {
           {({ values, handleChange, handleSubmit }) => {
             return (
               <>
-                <InputGroup className="mb-3">
-                  <Form.Control
-                    type="text"
-                    id="url"
-                    name="url"
-                    placeholder="E.g. https://www.gemini.com/cryptopedia/compound-finance-defi-crypto"
-                    autoComplete="off"
-                    value={values.url}
-                    onChange={handleChange}
-                  />
-                  <InputGroup.Append>
-                    <Button variant="secondary" onClick={handleSubmit}>
-                      Submit
+                <Form.Row>
+                  <Col xs={12} md={10}>
+                    <Form.Control
+                      as="input"
+                      type="text"
+                      id="url"
+                      name="url"
+                      value={values.url}
+                      autoComplete="off"
+                      onChange={handleChange}
+                      placeholder="E.g. https://www.gemini.com/cryptopedia/compound-finance-defi-crypto"
+                    />
+                  </Col>
+                  <Col xs={12} md={2}>
+                    <Button block onClick={handleSubmit}>
+                      Upload
                     </Button>
-                  </InputGroup.Append>
-                </InputGroup>
-                <Form.Text className="text-muted">
-                  Note: This service does not endorse the distribution of
-                  copyrighted materials. For personal use only.
-                </Form.Text>
+                  </Col>
+                </Form.Row>
               </>
             );
           }}

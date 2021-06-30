@@ -1,5 +1,5 @@
 const schedule = require("node-schedule");
-const MongoUser = require("../config/mongoose/User");
+const MongoUser = require("../mongoose/User");
 
 // This job will reset the daily user upload limits at 23:59:00
 

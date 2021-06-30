@@ -6,7 +6,7 @@ const FileList = ({ files }) => {
   return (
     <Row>
       <Col>
-        <ListGroup variant="flush" className="mt-5">
+        <ListGroup variant="flush">
           {files.map((file, idx) => (
             <FileListItem key={`${file.owner}-file-${idx}`} file={file} />
           ))}

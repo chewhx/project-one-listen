@@ -13,3 +13,4 @@ const bucket = new Storage({
 }).bucket(GCP_BUCKET);
 
 module.exports = bucket;
+

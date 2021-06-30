@@ -1,68 +1,101 @@
 import React from "react";
-import { Navbar, Nav, Button } from "react-bootstrap";
-// import { useQuery } from "react-query";
-import { NavLink, useHistory } from "react-router-dom";
-import axios from "axios";
+import {
+  Container,
+  Navbar,
+  Nav,
+  Button,
+  NavDropdown,
+  Image,
+} from "react-bootstrap";
 
-const Nav_ = () => {
-  const history = useHistory();
+import { NavLink } from "react-router-dom";
+import { LinkContainer } from "react-router-bootstrap";
 
-  const [user, setUser] = React.useState();
-
-  React.useEffect(() => {
-    axios
-      .get(`/auth/user`)
-      .then((res) => {
-        setUser(res.data);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
-
-  // const { data: user, status } = useQuery("user", getUser, {
-  //   keepPreviousData: true,
-  //   refetchOnMount: true,
-  //   refetchOnWindowFocus: false,
-  //   refetchOnReconnect: true,
-  // });
-
-  const logoutHandler = async () => {
-    const { status } = await axios.get(`/logout`);
-    setUser({});
-    if (status === 200 || status === 302) {
-      history.replace(`/`);
-    }
-  };
-
+const Nav_ = ({ user, logoutHandler }) => {
   return (
     <>
-      <Navbar className="mb-5 sticky-top" bg="light" expand="lg">
-        <NavLink className="navbar-brand" to="/">
-          <h3>One Listen</h3>
-        </NavLink>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="ml-auto">
+      <Navbar className="sticky-top" bg="dark" variant="dark" expand="lg">
+        <Container>
+          <NavLink className="navbar-brand" to="/">
+            <span>One Listen</span>
+          </NavLink>
+
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
             {user?._id ? (
               <>
-                <NavLink className="nav-link" to={`/profile/${user._id}`}>
-                  {user.name}
-                </NavLink>
-                <Nav.Link href="/account">Account</Nav.Link>
-                <Button
-                  variant="link"
-                  className="nav-link"
-                  onClick={() => logoutHandler()}
-                >
-                  Log out
-                </Button>
+                <Nav className="d-block d-lg-none">
+                  <LinkContainer to={`/profile/${user._id}`}>
+                    <Nav.Item>{user.name || "Nameless"}</Nav.Item>
+                  </LinkContainer>
+                  <Nav.Item>
+                    <Nav.Link variant="dark" onClick={() => logoutHandler()}>
+                      Sign out
+                    </Nav.Link>
+                  </Nav.Item>
+                </Nav>
               </>
             ) : (
-              <Nav.Link href="/auth/google">Sign in</Nav.Link>
+              <Nav className="d-block d-lg-none">
+                <LinkContainer to={`/signin`}>
+                  <Nav.Link>Sign in</Nav.Link>
+                </LinkContainer>
+              </Nav>
+            )}
+          </Navbar.Collapse>
+
+          <Nav className="ml-auto d-none d-lg-flex">
+            {user?._id ? (
+              <>
+                <NavDropdown
+                  title={
+                    <span>
+                      <i className="bi bi-plus-lg"></i>
+                    </span>
+                  }
+                  id="nav-action-menu"
+                >
+                  <NavDropdown.Item eventKey="3.1">New text</NavDropdown.Item>
+                  <NavDropdown.Item eventKey="3.2">Upload url</NavDropdown.Item>
+                  <NavDropdown.Item disabled eventKey="3.3">
+                    Upload text file
+                  </NavDropdown.Item>
+                </NavDropdown>
+                <NavDropdown
+                  title={
+                    <Image
+                      fluid
+                      style={{ height: "28px" }}
+                      src={
+                        user.photo ||
+                        "https://ui-avatars.com/api/?name=John+Doe"
+                      }
+                      roundedCircle
+                    />
+                  }
+                  id="nav-user-menu"
+                >
+                  <LinkContainer to={`/profile/${user._id}`}>
+                    <NavDropdown.Item>
+                      {user.name || "Nameless"}
+                    </NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to={`/profile/edit/${user._id}`}>
+                    <NavDropdown.Item>Profile</NavDropdown.Item>
+                  </LinkContainer>
+                  <NavDropdown.Divider />
+                  <NavDropdown.Item as={Button} onClick={() => logoutHandler()}>
+                    Sign out
+                  </NavDropdown.Item>
+                </NavDropdown>
+              </>
+            ) : (
+              <LinkContainer to={`/signin`}>
+                <Nav.Link>Sign in</Nav.Link>
+              </LinkContainer>
             )}
           </Nav>
-        </Navbar.Collapse>
+        </Container>
       </Navbar>
     </>
   );
