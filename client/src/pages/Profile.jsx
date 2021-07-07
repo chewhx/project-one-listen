@@ -13,7 +13,7 @@ const Profile = () => {
   const { data: user, status } = useQuery(
     ["user", match.params.id],
     async () => {
-      const res = await fetch(`/api/v1/user/${match.params.id}`);
+      const res = await fetch(`/api/v2/user/${match.params.id}`);
       return res.json();
     },
     {

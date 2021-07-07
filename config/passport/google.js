@@ -1,6 +1,6 @@
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const User = require("../../models/User");
+const User = require("../../api/v2/models/User");
 const logger = require("pino")({ prettyPrint: true });
 
 passport.use(

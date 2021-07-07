@@ -2,9 +2,9 @@ const path = require("path");
 const express = require("express");
 const colors = require("colors");
 const morgan = require("morgan");
-const cookieSession = require("cookie-session");
-const app = express();
 const passport = require("passport");
+
+const app = express();
 
 // Dev logger
 if (process.env.NODE_ENV === "development") {
@@ -16,15 +16,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Express session
-app.use(
-  cookieSession({
-    maxAge: 24 * 60 * 60 * 1000,
-    secret: process.env.COOKIE_SECRET,
-    httpOnly: true,
-  })
-);
+app.use(require("./session"));
 
-// Passport (after cookie session)
+// Passport (after session)
 require("../config/passport/local");
 require("../config/passport/google");
 app.use(passport.initialize());
@@ -33,12 +27,28 @@ app.use(passport.session());
 // Static files
 app.use(express.static(path.resolve(__dirname, "../client/build")));
 
-const PORT = process.env.PORT || 5000;
+// Routes
+app.use("/api/v2/auth", require("../api/v2/routes/authRoute"));
+app.use("/api/v2/user", require("../api/v2/routes/userRoute"));
+app.use("/api/v2/resource", require("../api/v2/routes/resourceRoute"));
 
-app.listen(PORT, () => {
-  console.log(
-    ` Server running in ${process.env.NODE_ENV} on ${PORT} `.green.bold.inverse
-  );
+// Handle logout
+app.get("/logout", (req, res) => {
+  req.logOut();
+  res.redirect("/");
 });
+
+// Handle "/"
+app.get("/", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
+});
+
+// Handle "*"
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
+});
+
+// Error handler
+app.use(require("./error"));
 
 module.exports = app;

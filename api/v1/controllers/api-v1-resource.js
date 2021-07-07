@@ -1,8 +1,8 @@
-const MongoResource = require("../../models/Resource");
-const MongoUser = require("../../models/User");
-const { parserEvent, synthEvent } = require("../../events");
+const MongoResource = require("../../../models/Resource");
+const MongoUser = require("../../../models/User");
+const { parserEvent, synthEvent } = require("../../../events");
 const createError = require("http-errors");
-const writeToBucket = require("../../services/gcp/writeToBucket");
+const writeToBucket = require("../../../services/gcp/writeToBucket");
 
 //  ---------------------------------------------------------------------------------------
 //  @desc     Get all resources

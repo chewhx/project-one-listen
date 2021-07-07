@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon server",
     "start": "node server",
-    "build": "cd client/ && npm install && npm run build"
+    "build": "cd client/ && npm install && npm run build",
+    "test": "jest"
   },
   "engines": {
     "node": "14.x"
@@ -35,11 +36,13 @@
     "@google-cloud/storage": "^5.8.5",
     "@google-cloud/text-to-speech": "^3.2.1",
     "@postlight/mercury-parser": "^2.2.0",
+    "bcrypt": "^5.0.1",
     "colors": "^1.4.0",
-    "cookie-session": "^1.4.0",
+    "connect-mongo": "^4.4.1",
     "dotenv": "^10.0.0",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
+    "express-session": "^1.17.2",
     "googleapis": "^75.0.0",
     "http-errors": "^1.8.0",
     "mongoose": "^5.12.13",
@@ -50,6 +53,8 @@
     "passport-local": "^1.0.0",
     "pino": "^6.11.3",
     "pino-pretty": "^5.1.0",
-    "slugify": "^1.5.3"
-  }
+    "slugify": "^1.5.3",
+    "validator": "^13.6.0"
+  },
+  "devDependencies": {}
 }

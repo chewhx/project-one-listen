@@ -58,6 +58,15 @@ Date.prototype.addMonths = function (h) {
   return this;
 };
 
+userSchema.methods.postLimits = async function (resourceId) {
+  // Increase file limit, day limit, month limit
+  this.limits.perDayUsed += 1;
+  this.limits.perMonthUsed + 1;
+  this.files.owner.push(resourceId);
+  await this.save();
+  return true;
+};
+
 userSchema.methods.checkLimits = function () {
   // Check user quotas, daily and monthly limits
   const fileLimitExceeded = this.files.owner.length >= this.files.ownerLimit;

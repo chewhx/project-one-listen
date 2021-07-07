@@ -9,12 +9,14 @@ import {
   Image,
 } from "react-bootstrap";
 import { Formik } from "formik";
+import { useHistory } from "react-router";
+import { AuthContext } from "../providers/AuthContext";
 
-
-
-const Login = ({loginHandler}) => {
+const Login = () => {
   const form = React.createRef();
 
+  const { loginHandler } = React.useContext(AuthContext);
+  const history = useHistory();
 
   return (
     <main className="bg-dark" style={{ minHeight: "100vh" }}>
@@ -53,7 +55,10 @@ const Login = ({loginHandler}) => {
                 <Formik
                   initialValues={{}}
                   enableReinitialize={true}
-                  onSubmit={loginHandler}
+                  onSubmit={async (values) => {
+                    await loginHandler(values);
+                    history.replace(`/`);
+                  }}
                 >
                   {({ values, handleChange, handleSubmit }) => {
                     return (

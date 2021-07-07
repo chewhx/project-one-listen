@@ -1,7 +1,7 @@
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
-const { hashPassword, matchPassword } = require("../../utils/password");
-const User = require("../../models/User");
+const bcrypt = require("bcrypt");
+const User = require("../../api/v2/models/User");
 const logger = require("pino")({ prettyPrint: true });
 
 passport.use(
@@ -17,7 +17,7 @@ passport.use(
 
     if (userExist) {
       // Check if password matches
-      const isMatch = matchPassword(password, userExist.password);
+      const isMatch = await bcrypt.compare(password, userExist.password);
       if (isMatch) {
         // Update user last login and limits
         userExist.lastLogin = new Date();
@@ -31,7 +31,7 @@ passport.use(
     if (!userExist) {
       const newUser = await User.create({
         email: username,
-        password: hashPassword(password),
+        password: await bcrypt.hash(password, 10),
         lastLogin: new Date(),
       });
       if (newUser) {

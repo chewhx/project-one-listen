@@ -8,10 +8,13 @@ import {
   Image,
 } from "react-bootstrap";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useHistory } from "react-router-dom";
 import { LinkContainer } from "react-router-bootstrap";
+import { AuthContext } from "../providers/AuthContext";
 
-const Nav_ = ({ user, logoutHandler }) => {
+const Nav_ = () => {
+  const { user, logoutHandler } = React.useContext(AuthContext);
+  const history = useHistory();
   return (
     <>
       <Navbar className="sticky-top" bg="dark" variant="dark" expand="lg">
@@ -29,7 +32,13 @@ const Nav_ = ({ user, logoutHandler }) => {
                     <Nav.Item>{user.name || "Nameless"}</Nav.Item>
                   </LinkContainer>
                   <Nav.Item>
-                    <Nav.Link variant="dark" onClick={() => logoutHandler()}>
+                    <Nav.Link
+                      variant="dark"
+                      onClick={() => {
+                        logoutHandler();
+                        history.replace(`/signin`);
+                      }}
+                    >
                       Sign out
                     </Nav.Link>
                   </Nav.Item>
