@@ -5,11 +5,13 @@ import {
   RESOURCE_GET_API,
   RESOURCE_POST_API,
 } from "../constants";
-import { useAlert } from "react-alert";
+import { useContext } from "react";
+import { ToastContext } from "../providers/ToastProvider";
 
 export default function useResource() {
   const queryClient = useQueryClient();
-  const alert = useAlert();
+
+  const { addToast } = useContext(ToastContext);
 
   const PostUrl = () => {
     return useMutation(
@@ -22,12 +24,11 @@ export default function useResource() {
           queryClient.setQueryData("resources", (prev) => {
             return [resource, ...prev];
           });
-          alert.success(`✅ Link uploaded.`);
+          addToast("Link Posted ✅ ");
         },
         onError: (err) => {
-          alert.error(`🚨 ${err.response.status}: ${err.response.data}`);
           console.error(err);
-          console.log(err.response);
+          addToast(`Error 🚨 - ${err.response.data}`);
         },
       }
     );
@@ -44,12 +45,11 @@ export default function useResource() {
           queryClient.setQueryData("resources", (prev) => {
             return [resource, ...prev];
           });
-          alert.success(`✅ Link uploaded.`);
+          addToast("Text Posted ✅ ");
         },
         onError: (err) => {
-          alert.error(`🚨 ${err.response.status}: ${err.response.data}`);
           console.error(err);
-          console.log(err.response);
+          addToast(`Error 🚨 - ${err.response.data}`);
         },
       }
     );
@@ -74,12 +74,11 @@ export default function useResource() {
           queryClient.setQueryData("resources", (prev) => {
             return prev.filter((e) => e._id !== variables.resourceId);
           });
-          alert.success(`✅ Resource deleted.`);
+          addToast("Deleted ✅ ");
         },
         onError: (err) => {
-          alert.error(`🚨 ${err.response.status}: ${err.response.data}`);
           console.error(err);
-          console.log(err.response);
+          addToast(`Error 🚨 - ${err.response.data}`);
         },
       }
     );

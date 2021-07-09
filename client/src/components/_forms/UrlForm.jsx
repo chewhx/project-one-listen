@@ -1,33 +1,28 @@
 import React from "react";
-import { Form, Button, Row } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { Spinner } from "react-bootstrap";
 import useResource from "../../hooks/useResource";
 
 const UrlForm = () => {
-  const uniqueFormId = String(Date.now());
-
-  const { PostUrl } = useResource()
+  // Hooks
+  const { PostUrl } = useResource();
   const { mutate } = PostUrl();
 
-  // Form validation
-
+  // Validations
   const validationSchema = yup.object().shape({
-    [`${uniqueFormId}-url`]: yup
-      .string()
-      .required("Required")
-      .url("Invalid url"),
+    [`url`]: yup.string().required("Required").url("Invalid url"),
   });
 
   return (
     <Formik
       enableReinitialize
       initialValues={{
-        [`${uniqueFormId}-url`]: "",
+        [`url`]: "",
       }}
       onSubmit={async (values, actions) => {
-        await mutate({ url: values[`${uniqueFormId}-url`] });
+        await mutate({ url: values[`url`] });
         actions.resetForm();
       }}
       validationSchema={validationSchema}
@@ -44,35 +39,33 @@ const UrlForm = () => {
       }) => {
         return (
           <Form>
-            <Form.Label className="h3" htmlFor={`${uniqueFormId}-url`}>
-              Url
+            <Form.Label className="h3" htmlFor={`url`}>
+              URL
             </Form.Label>
             <Form.Control
-              id={`${uniqueFormId}-url`}
-              name={`${uniqueFormId}-url`}
+              id={`url`}
+              name={`url`}
               type="text"
-              value={values[`${uniqueFormId}-url`]}
+              value={values[`url`]}
               onChange={handleChange}
               onBlur={handleBlur}
-              isInvalid={
-                errors[`${uniqueFormId}-url`] && touched[`${uniqueFormId}-url`]
-              }
+              isInvalid={errors[`url`] && touched[`url`]}
             />
-            {errors[`${uniqueFormId}-url`] && touched[`${uniqueFormId}-url`] ? (
+            {errors[`url`] && touched[`url`] ? (
               <Form.Control.Feedback type="invalid">
-                {errors[`${uniqueFormId}-url`]}
+                {errors[`url`]}
               </Form.Control.Feedback>
             ) : null}
-            <Row
-              style={{ maxWidth: "170px" }}
-              className="justify-content-around my-3"
+            <Form.Row
+              style={{ maxWidth: "150px" }}
+              className="justify-content-between my-3 mx-0"
             >
               <Button variant="primary" onClick={handleSubmit}>
                 {isSubmitting && <Spinner variant="light" size="sm" />}
                 Upload
               </Button>
               <Button onClick={handleReset}>Clear</Button>
-            </Row>
+            </Form.Row>
           </Form>
         );
       }}

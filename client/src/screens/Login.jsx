@@ -10,7 +10,7 @@ import {
 } from "react-bootstrap";
 import { Formik } from "formik";
 import { useHistory } from "react-router";
-import { AuthContext } from "../providers/AuthContext";
+import { AuthContext } from "../providers/AuthProvider";
 import { GOOGLE_AUTH_URL } from "../constants";
 
 const Login = () => {

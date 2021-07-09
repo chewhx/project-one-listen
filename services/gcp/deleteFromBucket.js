@@ -1,4 +1,4 @@
-const bucket = require("../config/gcp/bucket");
+const bucket = require("../../config/gcp/bucket");
 const filePathCheck = require("../../utils/filePathCheck");
 const createError = require("http-errors");
 

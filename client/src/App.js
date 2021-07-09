@@ -1,46 +1,46 @@
 import React from "react";
-import { Route } from "react-router-dom";
+import { Route, Redirect } from "react-router-dom";
 
-import { positions, Provider as AlertProvider } from "react-alert";
-import AlertTemplate from "./components/Alert";
-import Nav from "./components/Nav";
-import Footer from "./components/Footer";
-import Profile from "./pages/Profile";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import { Redirect } from "react-router-dom";
+// Providers
+import { AuthContext } from "./providers/AuthProvider";
+import ModalProvider from "./providers/ModalProvider";
+import ToastProvider from "./providers/ToastProvider";
 
-import { AuthContext } from "./providers/AuthContext";
-import UrlUpload from "./components/_uploads/UrlUpload";
-import TextUpload from "./components/_uploads/TextUpload";
+// Layout
+import Layout from "./components/_layout/Layout";
 
+// Screens
+import Home from "./screens/Home";
+import Login from "./screens/Login";
+import UserProfile from "./screens/UserProfile";
+import UserUploads from "./screens/UserUploads";
 
 const App = () => {
-  const options = {
-    // you can also just use 'bottom center'
-    position: positions.BOTTOM_CENTER,
-    timeout: 5000,
-    offset: "10px",
-  };
-
   const auth = React.useContext(AuthContext);
 
   return (
-    <AlertProvider template={AlertTemplate} {...options}>
-      <Nav />
-      <Route path="/signin">
-        {auth.user ? <Redirect to={`/profile/${auth.user._id}`} /> : <Login />}
-      </Route>
-      <Route path="/profile/:id">{auth.user ? <Profile /> : <Login />}</Route>
-      <Route exact path="/uploadtext">
-        <UrlUpload />
-        <TextUpload />
-      </Route>
-      <Route exact path="/">
-        <Home />
-      </Route>
-      <Footer />
-    </AlertProvider>
+    <ToastProvider>
+      <ModalProvider>
+        <Layout>
+          <Route path="/signin">
+            {auth.user ? (
+              <Redirect to={`/profile/${auth.user._id}`} />
+            ) : (
+              <Login />
+            )}
+          </Route>
+          <Route path="/profile/:id">
+            {auth.user ? <UserProfile /> : <Login />}
+          </Route>
+          <Route path="/uploads/:id">
+            {auth.user ? <UserUploads /> : <Login />}
+          </Route>
+          <Route exact path="/">
+            <Home />
+          </Route>
+        </Layout>
+      </ModalProvider>
+    </ToastProvider>
   );
 };
 

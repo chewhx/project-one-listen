@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   Container,
   Navbar,
@@ -11,14 +11,20 @@ import {
 
 import { NavLink, useHistory } from "react-router-dom";
 import { LinkContainer } from "react-router-bootstrap";
-import { AuthContext } from "../providers/AuthContext";
+import { AuthContext } from "../../providers/AuthProvider";
 import { useIsFetching } from "react-query";
 
-const Nav_ = () => {
+import UrlForm from "../_forms/UrlForm";
+import TextForm from "../_forms/TextForm";
+
+import { ModalContext } from "../../providers/ModalProvider";
+
+const Header = () => {
   // Hooks
   const { user, logoutHandler } = React.useContext(AuthContext);
   const history = useHistory();
   const isFetching = useIsFetching();
+  const { handleModal } = useContext(ModalContext);
 
   // Presentation
   return (
@@ -35,7 +41,7 @@ const Nav_ = () => {
               <>
                 <Nav className="d-block d-lg-none">
                   <LinkContainer to={`/profile/${user._id}`}>
-                    <Nav.Item>{user.name || "Nameless"}</Nav.Item>
+                    <Nav.Item>{user.email}</Nav.Item>
                   </LinkContainer>
                   <Nav.Item>
                     <Nav.Link
@@ -75,8 +81,18 @@ const Nav_ = () => {
                   }
                   id="nav-action-menu"
                 >
-                  <NavDropdown.Item eventKey="3.1">New text</NavDropdown.Item>
-                  <NavDropdown.Item eventKey="3.2">Upload url</NavDropdown.Item>
+                  <NavDropdown.Item
+                    eventKey="3.1"
+                    onClick={() => handleModal(<TextForm />)}
+                  >
+                    New text
+                  </NavDropdown.Item>
+                  <NavDropdown.Item
+                    eventKey="3.2"
+                    onClick={() => handleModal(<UrlForm />)}
+                  >
+                    Upload url
+                  </NavDropdown.Item>
                   <NavDropdown.Item disabled eventKey="3.3">
                     Upload text file
                   </NavDropdown.Item>
@@ -96,9 +112,10 @@ const Nav_ = () => {
                   id="nav-user-menu"
                 >
                   <LinkContainer to={`/profile/${user._id}`}>
-                    <NavDropdown.Item>
-                      {user.name || "Nameless"}
-                    </NavDropdown.Item>
+                    <NavDropdown.Item>{user.email}</NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to={`/uploads/${user._id}`}>
+                    <NavDropdown.Item>Uploads</NavDropdown.Item>
                   </LinkContainer>
                   <LinkContainer to={`/profile/edit/${user._id}`}>
                     <NavDropdown.Item>Profile</NavDropdown.Item>
@@ -121,4 +138,4 @@ const Nav_ = () => {
   );
 };
 
-export default Nav_;
+export default Header;

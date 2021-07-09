@@ -1,30 +1,30 @@
 import React from "react";
-import { Form, Button, Row, Spinner } from "react-bootstrap";
+import { Form, Button, Spinner } from "react-bootstrap";
 import { Formik } from "formik";
 import useResource from "../../hooks/useResource";
 import * as yup from "yup";
 
 const TextForm = () => {
-  const uniqueFormId = String(Date.now());
-  const { mutate } = useResource();
+  const { PostText } = useResource();
+  const { mutate } = PostText();
 
   // Form Validation
 
   const validationSchema = yup.object().shape({
-    [`${uniqueFormId}-title`]: yup
+    [`title`]: yup
       .string()
       .required("Required")
       .max(100, "Limit to 100 characters"),
-    [`${uniqueFormId}-text`]: yup.string().required("Required"),
+    [`text`]: yup.string().required("Required"),
   });
 
   // Submit handler
 
   const onSubmitHandler = async (values, { setSubmitting, resetForm }) => {
     const res = mutate({
-      text: values[`${uniqueFormId}-text`],
-      title: values[`${uniqueFormId}-title`],
-      slug: values[`${uniqueFormId}-title`]
+      text: values[`text`],
+      title: values[`title`],
+      slug: values[`title`]
         .replace(/[^a-zA-Z ]/g, "")
         .toLowerCase()
         .split(" ")
@@ -40,8 +40,8 @@ const TextForm = () => {
     <Formik
       enableReinitialize
       initialValues={{
-        [`${uniqueFormId}-title`]: "",
-        [`${uniqueFormId}-text`]: "",
+        [`title`]: "",
+        [`text`]: "",
       }}
       onSubmit={onSubmitHandler}
       validationSchema={validationSchema}
@@ -60,68 +60,60 @@ const TextForm = () => {
         return (
           <Form>
             <Form.Group className="my-3">
-              <Form.Label htmlFor={`${uniqueFormId}-title`} className="h3">
+              <Form.Label htmlFor={`title`} className="h3">
                 Title
               </Form.Label>
               <Form.Control
+                id={`title`}
+                name={`title`}
                 type="text"
-                value={values[`${uniqueFormId}-title`]}
+                value={values[`title`]}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                isInvalid={
-                  errors[`${uniqueFormId}-title`] &&
-                  touched[`${uniqueFormId}-title`]
-                }
+                isInvalid={errors[`title`] && touched[`title`]}
               />
-              {errors[`${uniqueFormId}-title`] &&
-              touched[`${uniqueFormId}-title`] ? (
+              {errors[`title`] && touched[`title`] ? (
                 <Form.Control.Feedback type="invalid">
-                  {errors[`${uniqueFormId}-title`]}
+                  {errors[`title`]}
                 </Form.Control.Feedback>
               ) : null}
             </Form.Group>
 
             <Form.Group className="my-3">
-              <Form.Label htmlFor={`${uniqueFormId}-text`} className="h3">
+              <Form.Label htmlFor={`text`} className="h3">
                 Text
               </Form.Label>
               <Form.Text>
                 Character count:{" "}
-                {values && values[`${uniqueFormId}-text`]
-                  ? values[`${uniqueFormId}-text`].length
-                  : "0"}
+                {values && values[`text`] ? values[`text`].length : "0"}
               </Form.Text>
               <Form.Control
-                id={`${uniqueFormId}-text`}
-                name={`${uniqueFormId}-text`}
+                id={`text`}
+                name={`text`}
                 as="textarea"
                 rows="8"
-                value={values[`${uniqueFormId}-text`]}
+                value={values[`text`]}
                 onChange={(e) => {
-                  setFieldValue([`${uniqueFormId}-text`], e.target.value);
-                  if (!values[`${uniqueFormId}-text`]) {
+                  setFieldValue([`text`], e.target.value);
+                  if (!values[`title`]) {
                     setFieldValue(
-                      [`${uniqueFormId}-title`],
+                      [`title`],
                       e.target.value.slice(0, 60).replace(/[^a-zA-Z ]/g, "")
                     );
                   }
                 }}
                 onBlur={handleBlur}
-                isInvalid={
-                  errors[`${uniqueFormId}-text`] &&
-                  touched[`${uniqueFormId}-text`]
-                }
+                isInvalid={errors[`text`] && touched[`text`]}
               />
-              {errors[`${uniqueFormId}-text`] &&
-              touched[`${uniqueFormId}-text`] ? (
+              {errors[`text`] && touched[`text`] ? (
                 <Form.Control.Feedback type="invalid">
-                  {errors[`${uniqueFormId}-text`]}
+                  {errors[`text`]}
                 </Form.Control.Feedback>
               ) : null}
             </Form.Group>
-            <Row
-              style={{ maxWidth: "260px" }}
-              className="px-2 justify-content-around my-3"
+            <Form.Row
+              style={{ maxWidth: "220px" }}
+              className="mx-0 justify-content-between my-3"
             >
               <Button
                 variant="primary"
@@ -137,7 +129,7 @@ const TextForm = () => {
               <Button onClick={handleReset}>Clear</Button>
 
               <Button>Save</Button>
-            </Row>
+            </Form.Row>
           </Form>
         );
       }}

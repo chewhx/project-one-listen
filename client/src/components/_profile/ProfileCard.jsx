@@ -12,19 +12,19 @@ const ProfileCard = ({ user }) => {
           }
           roundedCircle
         />
+        <h4>{user.name || "Nameless"}</h4>
+        <p className="text-muted">{user.email}</p>
       </div>
-      <h4>{user.name || "Nameless"}</h4>
-      <p className="text-muted">{user.email}</p>
 
       <ListGroup variant="flush">
-        <ListGroup.Item className="p-0 mb-2 border-0">
+        <ListGroup.Item className="text-center p-0 mb-2 border-0">
           <span className="text-muted">Day Limit</span>
           <br />
           <span>
             {`${user.limits.perDayLimit - user.limits.perDayUsed} uploads left`}
           </span>
         </ListGroup.Item>
-        <ListGroup.Item className="p-0 mb-2 border-0">
+        <ListGroup.Item className="text-center p-0 mb-2 border-0">
           <span className="text-muted">Month Limit</span>
           <br />
           <span>
@@ -33,7 +33,7 @@ const ProfileCard = ({ user }) => {
             } uploads left.`}
           </span>
         </ListGroup.Item>
-        <ListGroup.Item className="p-0 mb-2 border-0">
+        <ListGroup.Item className="text-center p-0 mb-2 border-0">
           <span className="text-muted">File Limit</span>
           <br />
           <span>

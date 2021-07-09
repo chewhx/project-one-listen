@@ -4,6 +4,8 @@ const MongoUser = require("../models/User");
 const createHttpError = require("http-errors");
 // const writeToBucket = require("../../../services/gcp/writeToBucket");
 
+const deleteFromBucket = require("../../../services/gcp/deleteFromBucket");
+
 const createResource = require("../helpers/createResource");
 const postUserLimits = require("../helpers/postUserLimits");
 
@@ -145,13 +147,20 @@ exports.delete_one = async (req, res, next) => {
     // Find find from db
     const resource = await MongoResource.findById(req.params.id);
 
-    // Delete file from Google Cloud Storage
-    // await deleteFileFromBucket(resource);
+    if (resource.selfLink) {
+      // Delete file from Google Cloud Storage
+      await deleteFromBucket(
+        resource.paths.parser + "/" + resource.metadata.slug
+      );
+      await deleteFromBucket(
+        resource.paths.audio + "/" + resource.metadata.slug
+      );
+    }
 
     // Delete file from db
     await resource.remove();
 
-    res.status(200).send(`Resource ${req.params.id} deleted.`);
+    res.status(204).json({});
   } catch (err) {
     next(err);
   }
