@@ -66,7 +66,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser((id, done) => {
   User.findById(id).then((user) => {
-    const { _id, name, email, photo, googleId, lastLogin } = user;
-    done(null, { _id, name, email, photo, googleId, lastLogin });
+    const { _id, name, email, googleId, lastLogin } = user;
+    done(null, { _id, name, email, googleId, lastLogin });
   });
 });

@@ -13,8 +13,8 @@
 - [ ] Bcrypt for google tokens
 - [ ] Let user input raw text to be synthesized to audio
 - [ ] Upload text file to synthesize
-- [ ] Reallocate buckets for asset uploads
-- [ ] Tidy scopes for google oauth
+- [x] Reallocate buckets for asset uploads
+- [x] Tidy scopes for google oauth
 - [ ] File data indicates uploads and downloads
 - [ ] Listen to youtube videos
 - [ ] Listen to podcast

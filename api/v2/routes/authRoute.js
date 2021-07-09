@@ -28,11 +28,9 @@ router.get(
   })
 );
 
-router.get(
-  "/google/callback",
-  passport.authenticate("google", (req, res) => {
-    res.status(200);
-  })
-);
+router.get("/google/callback", passport.authenticate("google"), (req, res) => {
+  console.log(req.user);
+  res.redirect("/");
+});
 
 module.exports = router;

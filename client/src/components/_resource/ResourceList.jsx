@@ -1,14 +1,16 @@
 import React from "react";
 import { Row, Col, ListGroup } from "react-bootstrap";
-import FileListItem from "./FileListItem";
+import ResourceItem from "./ResourceItem";
 
-const FileList = ({ files }) => {
-  return (
+const ResourceList = ({ files }) => {
+  return !files ? (
+    "Loading"
+  ) : (
     <Row>
       <Col>
         <ListGroup variant="flush">
           {files.map((file, idx) => (
-            <FileListItem key={`${file.owner}-file-${idx}`} file={file} />
+            <ResourceItem key={`${file.owner}-file-${idx}`} file={file} />
           ))}
         </ListGroup>
       </Col>
@@ -16,4 +18,4 @@ const FileList = ({ files }) => {
   );
 };
 
-export default FileList;
+export default ResourceList;

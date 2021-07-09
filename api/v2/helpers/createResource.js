@@ -32,7 +32,7 @@ const createResource = async (req) => {
   if (req.query.type == "text") {
     if (typeof req.body.text === "string") {
       // Declare metadata because they will not be set by mercury parser
-      const slug = req.body.slug || Date.now();
+      const slug = req.body.slug || String(Date.now());
       const title = req.body.title || `${Date.now()}-${req.user._id}`;
       const char_count = req.body.char_count || req.body.text.length;
       const word_count = req.body.word_count || req.body.text.split(" ").length;

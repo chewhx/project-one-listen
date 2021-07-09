@@ -11,12 +11,14 @@ import {
 import { Formik } from "formik";
 import { useHistory } from "react-router";
 import { AuthContext } from "../providers/AuthContext";
+import { GOOGLE_AUTH_URL } from "../constants";
 
 const Login = () => {
-  const form = React.createRef();
 
-  const { loginHandler } = React.useContext(AuthContext);
+  // Hooks
+  const form = React.createRef();
   const history = useHistory();
+  const { loginHandler } = React.useContext(AuthContext);
 
   return (
     <main className="bg-dark" style={{ minHeight: "100vh" }}>
@@ -39,7 +41,7 @@ const Login = () => {
                   block
                   variant="danger"
                   className="my-4"
-                  href="/auth/google"
+                  href={GOOGLE_AUTH_URL}
                 >
                   <i className="bi bi-google mr-3"></i>Sign in with Google
                 </Button>

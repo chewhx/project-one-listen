@@ -1,9 +1,12 @@
 import React from "react";
 import { ListGroup, Badge } from "react-bootstrap";
-import Actions from "./FileListItem/Actions";
-import AudioPlayer from "./FileListItem/AudioPlayer";
+import Actions from "./ResourceItem/Actions";
+import AudioPlayer from "./ResourceItem/AudioPlayer";
+
 
 const FileListItem = ({ file, disableActions }) => {
+
+
   return (
     <>
       <ListGroup.Item className="py-3">

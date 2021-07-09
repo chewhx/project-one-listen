@@ -1,12 +1,10 @@
 import React from "react";
 import { Row, Dropdown, Alert } from "react-bootstrap";
-import axios from "axios";
+import useResource from "../../../hooks/useResource";
 
 const FileListItemActions = ({ fileId, hidden, ...rest }) => {
-  const deleteFile = async (fileId) => {
-    const res = await axios.delete(`/file/${fileId}`);
-    console.log(res);
-  };
+  const { DeleteResource } = useResource();
+  const { mutate } = DeleteResource();
   const [showDeleteModal, setShowDeleteModal] = React.useState("none");
   return (
     <>
@@ -34,7 +32,9 @@ const FileListItemActions = ({ fileId, hidden, ...rest }) => {
           className="w-100 justify-content-around"
         >
           Are you sure you want to delete? This cannot be undone.
-          <Alert.Link onClick={() => deleteFile(fileId)}>Delete</Alert.Link>
+          <Alert.Link onClick={() => mutate({ resourceId: fileId })}>
+            Delete
+          </Alert.Link>
           <Alert.Link
             className="text-primary"
             onClick={() => setShowDeleteModal("none")}

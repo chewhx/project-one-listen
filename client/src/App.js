@@ -11,6 +11,9 @@ import Login from "./pages/Login";
 import { Redirect } from "react-router-dom";
 
 import { AuthContext } from "./providers/AuthContext";
+import UrlUpload from "./components/_uploads/UrlUpload";
+import TextUpload from "./components/_uploads/TextUpload";
+
 
 const App = () => {
   const options = {
@@ -29,6 +32,10 @@ const App = () => {
         {auth.user ? <Redirect to={`/profile/${auth.user._id}`} /> : <Login />}
       </Route>
       <Route path="/profile/:id">{auth.user ? <Profile /> : <Login />}</Route>
+      <Route exact path="/uploadtext">
+        <UrlUpload />
+        <TextUpload />
+      </Route>
       <Route exact path="/">
         <Home />
       </Route>

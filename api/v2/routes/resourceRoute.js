@@ -13,7 +13,7 @@ const {
 
 router.get("/", get_all);
 router.get("/:id", authenticated, get_one);
-router.post("/", authenticated, private, userlimits, post_one);
+router.post("/", /*authenticated, private, userlimits,*/ post_one);
 router.put("/:id", edit_one);
 router.delete("/:id", delete_one);
 

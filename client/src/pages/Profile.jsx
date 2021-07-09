@@ -1,84 +1,37 @@
 import React from "react";
-import { Container, Row, Col, Image } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import { useRouteMatch } from "react-router-dom";
-import { useQuery } from "react-query";
 
-import FileList from "../components/Profile/FileList";
-import UploadGroup from "../components/Profile/UploadGroup";
-import { ListGroup } from "react-bootstrap";
+import ResourceList from "../components/_resource/ResourceList";
+import UrlUpload from "../components/forms/UrlForm";
+
+import useResource from "../hooks/useResource";
+import useUser from "../hooks/useUser";
+import ProfileCard from "../components/Profile/ProfileCard";
 
 const Profile = () => {
+  // Hooks
   const match = useRouteMatch();
+  const { GetAllResources } = useResource();
+  const { GetUser } = useUser();
 
-  const { data: user, status } = useQuery(
-    ["user", match.params.id],
-    async () => {
-      const res = await fetch(`/api/v2/user/${match.params.id}`);
-      return res.json();
-    },
-    {
-      keepPreviousData: true,
-      refetchInterval: 10000,
-      refetchIntervalInBackground: true,
-    }
-  );
+  // Functions
+  const { data: user, status: userStatus } = GetUser(match.params.id);
+  const { data: files, status: fileStatus } = GetAllResources();
 
-  return status === "Loading"
+  // Presentation
+  const pageStatus = userStatus || fileStatus;
+  return pageStatus === "loading"
     ? "Loading"
-    : status === "success" && (
+    : pageStatus === "success" && (
         <Container className="mt-5">
           <Row>
             <Col md={3}>
-              <div className="text-center mb-3">
-                <Image
-                  fluid
-                  src={
-                    user.photo ||
-                    "https://ui-avatars.com/api/?name=John+Doe&size=128"
-                  }
-                  roundedCircle
-                />
-              </div>
-              <h4>{user.name || "Nameless"}</h4>
-              <p className="text-muted">{user.email}</p>
-              {/* <LinkContainer to={`/profile/edit/${user._id}`}>
-                <Button block variant="dark" className="my-4">
-                  Edit profile
-                </Button>
-              </LinkContainer> */}
-              <ListGroup variant="flush">
-                <ListGroup.Item className="p-0 mb-2 border-0">
-                  <span className="text-muted">Day Limit</span>
-                  <br />
-                  <span>
-                    {`${
-                      user.limits.perDayLimit - user.limits.perDayUsed
-                    } uploads left`}
-                  </span>
-                </ListGroup.Item>
-                <ListGroup.Item className="p-0 mb-2 border-0">
-                  <span className="text-muted">Month Limit</span>
-                  <br />
-                  <span>
-                    {`${
-                      user.limits.perMonthLimit - user.limits.perMonthUsed
-                    } uploads left.`}
-                  </span>
-                </ListGroup.Item>
-                <ListGroup.Item className="p-0 mb-2 border-0">
-                  <span className="text-muted">File Limit</span>
-                  <br />
-                  <span>
-                    {`${user.files.owner.length} /
-            ${user.files.ownerLimit}`}
-                  </span>
-                </ListGroup.Item>
-              </ListGroup>
+              <ProfileCard user={user} />
             </Col>
             <Col md={9}>
-              <UploadGroup />
-              <hr />
-              <FileList files={user.files.owner} />
+              <UrlUpload />
+              <ResourceList files={files} />
             </Col>
           </Row>
         </Container>

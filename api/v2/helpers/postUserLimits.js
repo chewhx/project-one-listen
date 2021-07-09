@@ -1,13 +1,12 @@
 const createHttpError = require("http-errors");
 const MongoUser = require("../models/User");
-const logger = require("pino")({ prettyPrint: true });
 
-const postUserLimits = async (userId) => {
+const postUserLimits = async (userId, resourceId) => {
   try {
     const user = await MongoUser.findById(userId);
     user.limits.perDayUsed += 1;
     user.limits.perMonthUsed += 1;
-    user.files.owner.push(resource._id);
+    user.files.owner.push(resourceId);
     await user.save();
     return true;
   } catch (err) {

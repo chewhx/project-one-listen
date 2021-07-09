@@ -26,10 +26,7 @@ exports.get_one = async (req, res, next) => {
       throw createHttpError("Not authorised");
     }
 
-    const user = await MongoUser.findById(req.params.id).populate({
-      path: "files.owner",
-      options: { sort: "-createdAt" },
-    });
+    const user = await MongoUser.findById(req.params.id);
 
     res.status(200).send(user);
   } catch (err) {

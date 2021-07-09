@@ -5,6 +5,8 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
 import AuthProvider from "./providers/AuthContext";
 
+import { ReactQueryDevtools } from "react-query/devtools";
+
 const queryClient = new QueryClient();
 
 ReactDOM.render(
@@ -13,6 +15,7 @@ ReactDOM.render(
       <Router>
         <App />
       </Router>
+      <ReactQueryDevtools initialIsOpen={false} />
     </AuthProvider>
   </QueryClientProvider>,
   document.querySelector("#root")

@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { LOCAL_AUTH_URL, AUTH_URL } from "../constants";
 
 const useAuth = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    axios.post("/api/v2/auth").then((res) => {
+    axios.post(AUTH_URL).then((res) => {
       if (res.data) {
         setUser(res.data);
       }
@@ -14,7 +15,7 @@ const useAuth = () => {
 
   const loginHandler = async (values) => {
     try {
-      const { data } = await axios.post("/api/v2/auth/local", {
+      const { data } = await axios.post(LOCAL_AUTH_URL, {
         email: values.email,
         password: values.password,
       });

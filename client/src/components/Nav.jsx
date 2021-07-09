@@ -6,15 +6,21 @@ import {
   Button,
   NavDropdown,
   Image,
+  Spinner,
 } from "react-bootstrap";
 
 import { NavLink, useHistory } from "react-router-dom";
 import { LinkContainer } from "react-router-bootstrap";
 import { AuthContext } from "../providers/AuthContext";
+import { useIsFetching } from "react-query";
 
 const Nav_ = () => {
+  // Hooks
   const { user, logoutHandler } = React.useContext(AuthContext);
   const history = useHistory();
+  const isFetching = useIsFetching();
+
+  // Presentation
   return (
     <>
       <Navbar className="sticky-top" bg="dark" variant="dark" expand="lg">
@@ -54,6 +60,11 @@ const Nav_ = () => {
           </Navbar.Collapse>
 
           <Nav className="ml-auto d-none d-lg-flex">
+            {isFetching ? (
+              <Nav.Item className="mr-4">
+                <Spinner animation="border" variant="light" size="md" />
+              </Nav.Item>
+            ) : null}
             {user?._id ? (
               <>
                 <NavDropdown

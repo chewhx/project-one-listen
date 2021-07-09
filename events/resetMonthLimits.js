@@ -1,4 +1,5 @@
 const schedule = require("node-schedule");
+const MongoUser = require("../api/v2/models/User");
 
 // This job will reset the monthly user upload limits on the 28th of every month at 23:59:59
 
@@ -35,4 +36,4 @@ const resetUserMonthLimit = schedule.scheduleJob(monthRule, () => {
     });
 });
 
-module.exports = resetUserMonthLimit
+module.exports = resetUserMonthLimit;

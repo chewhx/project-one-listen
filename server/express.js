@@ -28,7 +28,7 @@ app.use(passport.session());
 app.use(express.static(path.resolve(__dirname, "../client/build")));
 
 // Routes
-app.use("/api/v2/auth", require("../api/v2/routes/authRoute"));
+app.use("/auth", require("../api/v2/routes/authRoute"));
 app.use("/api/v2/user", require("../api/v2/routes/userRoute"));
 app.use("/api/v2/resource", require("../api/v2/routes/resourceRoute"));
 

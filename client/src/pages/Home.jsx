@@ -1,6 +1,5 @@
 import React from "react";
 import { Container, Image, Row, Col, ListGroup } from "react-bootstrap";
-import FileListItem from "../components/Profile/FileListItem";
 
 const Home = () => {
   return (
@@ -37,7 +36,7 @@ const Home = () => {
           <Row className="justify-content-center">
             <Col xs={12} md={10}>
               <ListGroup variant="flush">
-                <FileListItem
+                {/* <FileListItem
                   disableActions={true}
                   file={{
                     _id: "60c5f0c8d79bd5a60d22234d",
@@ -71,7 +70,7 @@ const Home = () => {
                     },
                     updatedAt: "2021-06-13T11:50:26.162Z",
                   }}
-                />
+                /> */}
               </ListGroup>
             </Col>
           </Row>
