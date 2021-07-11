@@ -1,8 +1,9 @@
 const { Stream } = require("stream");
-const bucket = require("../../config/gcp/bucket");
+const bucket = require("../../../config/gcp/bucket");
 const logger = require("pino")({ prettyPrint: true });
+const createHttpError = require("http-errors");
 
-const singleWrite = async (filePath, res, options) => {
+exports.singleWrite = async (filePath, res, options) => {
   // Guard clause
   if (!filePath || !res)
     throw createHttpError(500, `writeToBucket: Invalid filePath or response.`);
@@ -32,7 +33,7 @@ const singleWrite = async (filePath, res, options) => {
     });
 };
 
-const multipleWrite = async (filePath, chunks, fn, options) => {
+exports.multipleWrite = async (filePath, chunks, fn, options) => {
   // Guard clause
   if (
     !filePath ||
@@ -74,11 +75,6 @@ const multipleWrite = async (filePath, chunks, fn, options) => {
     });
 };
 
-const writeToBucket = {
-  singleWrite: singleWrite,
-  multipleWrite: multipleWrite,
-};
-
 // const synth = require("../speech/synth");
 
 // const chunks = [
@@ -90,5 +86,3 @@ const writeToBucket = {
 // writeToBucket.multipleWrite("undefined/multipleWrite", chunks, synth, {
 //   metadata: { contentType: "audio/mpeg" },
 // });
-
-module.exports = writeToBucket;

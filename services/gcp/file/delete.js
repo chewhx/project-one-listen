@@ -1,5 +1,5 @@
-const bucket = require("../../config/gcp/bucket");
-const filePathCheck = require("../../utils/filePathCheck");
+const bucket = require("../../../config/gcp/bucket");
+const filePathCheck = require("../../../utils/filePathCheck");
 const createError = require("http-errors");
 
 const deleteFileFromBucket = async (filePath) => {

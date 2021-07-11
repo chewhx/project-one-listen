@@ -1,6 +1,6 @@
-const parserEvent = require("./parserEvent");
-const synthEvent = require("./synthEvent");
-const resetDayLimits = require("./resetDayLimits");
-const resetMonthLimits = require("./resetMonthLimits");
-
-module.exports = { parserEvent, synthEvent, resetDayLimits, resetMonthLimits };
+module.exports = {
+  parserEvent: require("./parserEvent"),
+  synthEvent: require("./synthEvent"),
+  resetDayLimits: require("./resetDayLimits"),
+  resetMonthLimits: require("./resetMonthLimits"),
+};

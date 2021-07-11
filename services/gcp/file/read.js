@@ -1,6 +1,6 @@
-const bucket = require("../../config/gcp/bucket");
+const bucket = require("../../../config/gcp/bucket");
 const createHttpError = require("http-errors");
-const filePathCheck = require("../../utils/filePathCheck");
+const filePathCheck = require("../../../utils/filePathCheck");
 
 const readFileFromBucket = async (filePath) => {
   // Check file path

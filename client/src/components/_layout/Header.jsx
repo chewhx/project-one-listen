@@ -112,7 +112,9 @@ const Header = () => {
                   id="nav-user-menu"
                 >
                   <LinkContainer to={`/profile/${user._id}`}>
-                    <NavDropdown.Item>{user.email}</NavDropdown.Item>
+                    <NavDropdown.Item>
+                      {user.email || user.name || "Nameless"}
+                    </NavDropdown.Item>
                   </LinkContainer>
                   <LinkContainer to={`/uploads/${user._id}`}>
                     <NavDropdown.Item>Uploads</NavDropdown.Item>

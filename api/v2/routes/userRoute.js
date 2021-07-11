@@ -3,16 +3,11 @@ const authenticated = require("../middlewares/authenticated");
 const private = require("../middlewares/private");
 const mongoid = require("../middlewares/mongoid");
 
-const {
-  get_all,
-  get_one,
-  edit_one,
-  delete_one,
-} = require("../controllers/user");
+const controller = require("../controllers/user");
 
-router.get("/", /* admin */ get_all);
-router.get("/:id", mongoid, authenticated, private, get_one);
-router.put("/:id", authenticated, private, edit_one);
-router.delete("/:id", /*admin*/ delete_one);
+router.get("/", /* admin */ controller.get_all);
+router.get("/:id", mongoid, authenticated, private, controller.get_one);
+router.put("/:id", authenticated, private, controller.edit_one);
+router.delete("/:id", /*admin*/ controller.delete_one);
 
 module.exports = router;

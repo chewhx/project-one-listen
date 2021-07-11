@@ -1,4 +1,4 @@
-const bucket = require("../../config/gcp/bucket");
+const bucket = require("../../../config/gcp/bucket");
 const createHttpError = require("http-errors");
 
 const checkFileExists = async (filePath) => {

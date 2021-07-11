@@ -1,8 +1,10 @@
 import React from "react";
+import PropTypes from "prop-types";
+
 import { Row, Dropdown, Alert } from "react-bootstrap";
 import useResource from "../../../hooks/useResource";
 
-const FileListItemActions = ({ fileId, hidden, ...rest }) => {
+const FileListItemActions = ({ fileId, ...rest }) => {
   const { DeleteResource } = useResource();
   const { mutate } = DeleteResource();
   const [showDeleteModal, setShowDeleteModal] = React.useState("none");
@@ -10,7 +12,6 @@ const FileListItemActions = ({ fileId, hidden, ...rest }) => {
     <>
       <Dropdown {...rest}>
         <Dropdown.Toggle
-          hidden={hidden}
           variant="light"
           id={`dropdown-actions-${fileId}`}
         ></Dropdown.Toggle>
@@ -45,6 +46,10 @@ const FileListItemActions = ({ fileId, hidden, ...rest }) => {
       </Row>
     </>
   );
+};
+
+FileListItemActions.propTypes = {
+  fileId: PropTypes.string.isRequired,
 };
 
 export default FileListItemActions;

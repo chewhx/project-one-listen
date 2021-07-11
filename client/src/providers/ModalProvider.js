@@ -1,17 +1,23 @@
 import { createContext } from "react";
+import PropTypes from "prop-types";
+
 import useModal from "../hooks/useModal";
 import Modal from "../containers/Modal";
 
 export const ModalContext = createContext();
 
 const ModalProvider = ({ children }) => {
-  const { modal, handleModal, modalContent } = useModal();
+  const modalValues = useModal();
   return (
-    <ModalContext.Provider value={{ modal, handleModal, modalContent }}>
+    <ModalContext.Provider value={modalValues}>
       {children}
       <Modal />
     </ModalContext.Provider>
   );
+};
+
+ModalProvider.propTypes = {
+  children: PropTypes.element.isRequired,
 };
 
 export default ModalProvider;

@@ -1,4 +1,6 @@
 import React from "react";
+import PropTypes from "prop-types";
+
 import { Row, Col, ListGroup } from "react-bootstrap";
 import ResourceItem from "./ResourceItem";
 
@@ -16,6 +18,10 @@ const ResourceList = ({ files }) => {
       </Col>
     </Row>
   );
+};
+
+ResourceList.propTypes = {
+  files: PropTypes.array.isRequired,
 };
 
 export default ResourceList;

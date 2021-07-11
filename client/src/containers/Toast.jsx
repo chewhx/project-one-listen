@@ -1,4 +1,6 @@
 import React, { useContext, useEffect } from "react";
+import PropTypes from "prop-types";
+
 import { Toast } from "react-bootstrap";
 import { ToastContext } from "../providers/ToastProvider";
 
@@ -26,16 +28,19 @@ const _Toast = ({ children, toast, ...rest }) => {
     >
       <Toast.Header>
         <strong className="mr-auto">One Listen</strong>
-        <small>
-          {new Date().toLocaleString("en-SG", {
-            dateStyle: "short",
-            timeStyle: "long",
-          })}
-        </small>
+        <small>{new Date(toast.id).toLocaleString("en-SG")}</small>
       </Toast.Header>
       <Toast.Body>{children}</Toast.Body>
     </Toast>
   );
+};
+
+_Toast.propTypes = {
+  children: PropTypes.element.isRequired,
+  toast: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    content: PropTypes.any.isRequired,
+  }).isRequired,
 };
 
 export default _Toast;

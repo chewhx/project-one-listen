@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Form, Button, Spinner } from "react-bootstrap";
 import { Formik } from "formik";
 import useResource from "../../hooks/useResource";
 import * as yup from "yup";
+import { ModalContext } from "../../providers/ModalProvider";
 
 const TextForm = () => {
   const { PostText } = useResource();
   const { mutate } = PostText();
+  const { closeModal } = useContext(ModalContext);
 
   // Form Validation
 
@@ -20,8 +22,8 @@ const TextForm = () => {
 
   // Submit handler
 
-  const onSubmitHandler = async (values, { setSubmitting, resetForm }) => {
-    const res = mutate({
+  const onSubmitHandler = async (values, actions) => {
+    await mutate({
       text: values[`text`],
       title: values[`title`],
       slug: values[`title`]
@@ -30,10 +32,9 @@ const TextForm = () => {
         .split(" ")
         .join("-"),
     });
-    if (res) {
-      setSubmitting(false);
-      resetForm();
-    }
+    await actions.setSubmitting(false);
+    await actions.resetForm();
+    closeModal();
   };
 
   return (

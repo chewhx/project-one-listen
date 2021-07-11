@@ -5,7 +5,10 @@ const useModal = () => {
   const [modalContent, setModalContent] = useState(
     "Lorem modal content from State"
   );
-  
+
+  const closeModal = () => {
+    setModal(false);
+  };
 
   const handleModal = (content) => {
     setModal((prev) => !prev);
@@ -14,7 +17,7 @@ const useModal = () => {
     }
   };
 
-  return { modal, handleModal, modalContent };
+  return { modal, handleModal, modalContent, closeModal };
 };
 
 export default useModal;

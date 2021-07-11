@@ -1,4 +1,5 @@
 import React from "react";
+
 import { Container } from "react-bootstrap";
 
 import useResource from "../hooks/useResource";
@@ -21,7 +22,7 @@ const UserUploads = () => {
     ? "Error"
     : status === "success" && (
         <Container>
-          <button onClick={() => addToast("Link Posted ✅   ")}>Alert</button>
+          <button onClick={() => addToast("Link Posted")}>Alert</button>
           <button onClick={() => removeToast(toastContent[0].id)}>
             Remove 1
           </button>

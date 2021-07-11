@@ -6,7 +6,7 @@ const useToast = () => {
   const [toastContent, setToastContent] = useState([]);
 
   const addToast = useCallback((content) => {
-    setToastContent((prev) => [...prev, { id: String(Date.now()), content }]);
+    setToastContent((prev) => [...prev, { id: Date.now(), content }]);
   }, []);
 
   const removeToast = useCallback((id) => {

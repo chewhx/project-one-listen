@@ -1,18 +1,23 @@
 import { createContext } from "react";
+import PropTypes from "prop-types";
+
 import useToast from "../hooks/useToast";
 
 export const ToastContext = createContext();
 
 const ToastProvider = ({ children }) => {
-  const { addToast, removeToast, toastContent, ToastContainer } = useToast();
-  console.log(toastContent);
+  const { toastContent, ToastContainer, ...rest } = useToast();
 
   return (
-    <ToastContext.Provider value={{ addToast, removeToast, toastContent }}>
+    <ToastContext.Provider value={{ toastContent, ToastContainer, ...rest }}>
       <ToastContainer toasts={toastContent} />
       {children}
     </ToastContext.Provider>
   );
+};
+
+ToastProvider.propTypes = {
+  children: PropTypes.element.isRequired,
 };
 
 export default ToastProvider;

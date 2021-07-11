@@ -1,13 +1,13 @@
 const MongoResource = require("../models/Resource");
 const MongoUser = require("../models/User");
-// const { parserEvent, synthEvent } = require("../../../events");
+const { parserEvent, synthEvent } = require("../../../events");
 const createHttpError = require("http-errors");
-// const writeToBucket = require("../../../services/gcp/writeToBucket");
 
-const deleteFromBucket = require("../../../services/gcp/deleteFromBucket");
+const deleteFromBucket = require("../../../services/gcp/file/delete");
 
-const createResource = require("../helpers/createResource");
-const postUserLimits = require("../helpers/postUserLimits");
+const gcp = require("../../../services/gcp");
+const createResource = require("../services/createResource");
+const postUserLimits = require("../services/postUserLimits");
 
 //  --------------------------------------------------------------------------------------
 //  @desc     Get all resources
@@ -60,13 +60,25 @@ exports.get_one = async (req, res, next) => {
 
 exports.post_one = async (req, res, next) => {
   try {
-    // Create resource based on req.query.type
+    // Create resource based on query and return the resource
     const resource = await createResource(req);
+
+    // Increment user limits
     if (resource) {
-      // Increment user limits
       await postUserLimits(req.user._id, resource._id);
     }
-    res.status(201).send(resource);
+
+    // Start parser event for url if not yet started
+    if ((resource.type = "Article" && parserEvent.schedule === null)) {
+      parserEvent.emit("start");
+    }
+
+    // Start synth event for text if not yet started
+    if ((resource.type = "Text" && synthEvent.schedule === null)) {
+      synthEvent.emit("start");
+    }
+
+    res.status(201).json(resource);
   } catch (err) {
     next(err);
   }
@@ -149,7 +161,7 @@ exports.delete_one = async (req, res, next) => {
 
     if (resource.selfLink) {
       // Delete file from Google Cloud Storage
-      await deleteFromBucket(
+      await gcp.file.delete(
         resource.paths.parser + "/" + resource.metadata.slug
       );
       await deleteFromBucket(

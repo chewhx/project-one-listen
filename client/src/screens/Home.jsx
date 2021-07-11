@@ -3,9 +3,9 @@ import { Container, Image, Row, Col, ListGroup } from "react-bootstrap";
 
 const Home = () => {
   return (
-    <div>
+    <>
       <div className="jumbotron">
-        <div className="container text-center">
+        <div className="text-center">
           <Image
             fluid
             roundedCircle
@@ -136,7 +136,7 @@ const Home = () => {
           </ol>
         </Container>
       </section>
-    </div>
+    </>
   );
 };
 

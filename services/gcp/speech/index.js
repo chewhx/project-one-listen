@@ -1,4 +1,4 @@
-const gSpeechClient = require("../../config/gcp/speech");
+const gSpeechClient = require("../../../config/gcp/speech");
 
 async function synthesizer(content) {
   try {

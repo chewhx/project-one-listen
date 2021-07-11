@@ -1,14 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Form, Button } from "react-bootstrap";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { Spinner } from "react-bootstrap";
 import useResource from "../../hooks/useResource";
+import { ModalContext } from "../../providers/ModalProvider";
 
 const UrlForm = () => {
   // Hooks
   const { PostUrl } = useResource();
   const { mutate } = PostUrl();
+  const { closeModal } = useContext(ModalContext);
 
   // Validations
   const validationSchema = yup.object().shape({
@@ -23,7 +25,9 @@ const UrlForm = () => {
       }}
       onSubmit={async (values, actions) => {
         await mutate({ url: values[`url`] });
-        actions.resetForm();
+        await actions.setSubmitting(false);
+        await actions.resetForm();
+        closeModal();
       }}
       validationSchema={validationSchema}
     >
