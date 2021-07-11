@@ -29,7 +29,7 @@ const App = () => {
           <Layout>
             <Route path="/signin">
               {auth.user ? (
-                <Redirect to={`/profile/${auth.user._id}`} />
+                <Redirect to={`/uploads/${auth.user._id}`} />
               ) : (
                 <Login />
               )}

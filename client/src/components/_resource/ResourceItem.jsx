@@ -41,7 +41,10 @@ const ResourceItem = ({ file }) => {
           </Col>
           <Col md={2}>
             <div className="d-flex justify-content-start">
-              <Button variant="link" onClick={() => setAudio(file)}>
+              <Button
+                variant="link"
+                onClick={() => setAudio(file)}
+              >
                 <i className="bi bi-earbuds"></i>
               </Button>
               <DropdownButton

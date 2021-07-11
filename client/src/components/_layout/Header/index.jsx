@@ -32,6 +32,8 @@ const Header = () => {
               size="md"
             />
           ) : null}
+
+          
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <NavCollapse />
 

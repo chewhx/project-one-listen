@@ -21,17 +21,17 @@ const NavCollapse = () => {
           <Nav className="d-block d-lg-none">
             <Nav.Item>
               <Nav.Link onClick={() => handleModal(<Form.Text />)}>
-                New Text
+                + Text
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
               <Nav.Link onClick={() => handleModal(<Form.Url />)}>
-                New URL
+                + URL
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
               <LinkContainer to={`/profile/${user._id}`}>
-                <Nav.Link>{user.email}</Nav.Link>
+                <Nav.Link>{user.email || user.name || "Nameless"}</Nav.Link>
               </LinkContainer>
             </Nav.Item>
             <Nav.Item>

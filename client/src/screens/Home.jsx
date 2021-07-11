@@ -1,10 +1,10 @@
 import React from "react";
-import { Container, Image, Row, Col, ListGroup } from "react-bootstrap";
+import { Container, Image } from "react-bootstrap";
 
 const Home = () => {
   return (
     <>
-      <div className="jumbotron">
+      <div className="jumbotron bg-white">
         <div className="text-center">
           <Image
             fluid
@@ -31,53 +31,7 @@ const Home = () => {
         </div>
       </div>
 
-      <section id="features" className="py-5">
-        <Container>
-          <Row className="justify-content-center">
-            <Col xs={12} md={10}>
-              <ListGroup variant="flush">
-                {/* <FileListItem
-                  disableActions={true}
-                  file={{
-                    _id: "60c5f0c8d79bd5a60d22234d",
-                    metadata: {
-                      title:
-                        "SushiSwap (SUSHI): A Community-Centric Evolution of Uniswap",
-                      slug: "sushiswap-sushi-a-community-centric-evolution-o",
-                      excerpt:
-                        "An overview of Chef Nomi’s community-centric SushiSwap, and how it competes with UniSwap using SUSHI coin, its Sushibar LP token system, and BentoBox.",
-                      wordCount: 1487,
-                      charCount: 9697,
-                    },
-                    job: {
-                      status: "Completed",
-                      queue: "None",
-                    },
-                    sourceUrl:
-                      "https://www.gemini.com/cryptopedia/sushiswap-sushi-coin-sushibar-chef-nomi",
-                    privateOnly: true,
-                    selfLink:
-                      "https://storage.googleapis.com/flashcard-6ec1f.appspot.com/60b7a045e340385fe319fbc8/audio/sushiswap-sushi-a-community-centric-evolution-o",
-                    resourcePath: "",
-                    resourceName: "",
-                    viewers: [],
-                    kind: "Article",
-                    owner: {
-                      $oid: "60b7a045e340385fe319fbc8",
-                    },
-                    createdAt: {
-                      $date: "2021-06-13T11:49:28.338Z",
-                    },
-                    updatedAt: "2021-06-13T11:50:26.162Z",
-                  }}
-                /> */}
-              </ListGroup>
-            </Col>
-          </Row>
-        </Container>
-      </section>
-
-      <section id="readme" className="bg-light py-5">
+      <section id="readme" className="py-5">
         <Container>
           <p>Disclaimers:</p>
           <ol className="small">
