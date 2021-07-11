@@ -1,6 +1,6 @@
 const CONSTANTS = {
   AUTH_URL: "/auth",
-  GOOGLE_AUTH_URL: "http://localhost:5000/auth/google",
+  GOOGLE_AUTH_URL: "/auth/google",
   LOCAL_AUTH_URL: "/auth/local",
   RESOURCE_API: "/api/v2/resource",
   RESOURCE_GET_API: "/api/v2/resource",
