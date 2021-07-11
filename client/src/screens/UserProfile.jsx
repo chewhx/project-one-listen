@@ -1,5 +1,4 @@
 import React from "react";
-import { Container } from "react-bootstrap";
 import { useRouteMatch } from "react-router-dom";
 
 import useUser from "../hooks/useUser";
@@ -18,9 +17,9 @@ const Profile = () => {
   return status === "loading"
     ? "Loading"
     : status === "success" && (
-        <Container className="mt-5">
+        <div className="mt-5">
           <ProfileCard user={user} />
-        </Container>
+        </div>
       );
 };
 

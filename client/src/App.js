@@ -5,9 +5,13 @@ import { Route, Redirect } from "react-router-dom";
 import { AuthContext } from "./providers/AuthProvider";
 import ModalProvider from "./providers/ModalProvider";
 import ToastProvider from "./providers/ToastProvider";
+import AudioProvider from "./providers/AudioProvider";
 
 // Layout
 import Layout from "./components/_layout/Layout";
+
+// Containers
+import Player from "./containers/Player";
 
 // Screens
 import Home from "./screens/Home";
@@ -21,24 +25,33 @@ const App = () => {
   return (
     <ToastProvider>
       <ModalProvider>
-        <Layout>
-          <Route path="/signin">
-            {auth.user ? (
-              <Redirect to={`/profile/${auth.user._id}`} />
-            ) : (
-              <Login />
+        <AudioProvider>
+          <Layout>
+            <Route path="/signin">
+              {auth.user ? (
+                <Redirect to={`/profile/${auth.user._id}`} />
+              ) : (
+                <Login />
+              )}
+            </Route>
+            <Route path="/profile/:id">
+              {auth.user ? <UserProfile /> : <Login />}
+            </Route>
+            <Route path="/uploads/:id">
+              {auth.user ? <UserUploads /> : <Login />}
+            </Route>
+            <Route exact path="/">
+              <Home />
+            </Route>
+            {auth.user && (
+              <div className="fixed-bottom bg-light py-4">
+                <div className="container">
+                  <Player />
+                </div>
+              </div>
             )}
-          </Route>
-          <Route path="/profile/:id">
-            {auth.user ? <UserProfile /> : <Login />}
-          </Route>
-          <Route path="/uploads/:id">
-            {auth.user ? <UserUploads /> : <Login />}
-          </Route>
-          <Route exact path="/">
-            <Home />
-          </Route>
-        </Layout>
+          </Layout>
+        </AudioProvider>
       </ModalProvider>
     </ToastProvider>
   );

@@ -1,31 +1,64 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import { ListGroup, Badge } from "react-bootstrap";
-import Actions from "./ResourceItem/Actions";
-import AudioPlayer from "./ResourceItem/AudioPlayer";
+import {
+  ListGroup,
+  Badge,
+  Button,
+  Row,
+  Col,
+  DropdownButton,
+  Dropdown,
+} from "react-bootstrap";
+
+import { AudioContext } from "../../providers/AudioProvider";
+import useResource from "../../hooks/useResource";
 
 const ResourceItem = ({ file }) => {
+  // Hooks
+  const { setAudio } = React.useContext(AudioContext);
+  const { DeleteResource } = useResource();
+  const { mutate } = DeleteResource();
+
+  // Presentation
   return (
     <>
       <ListGroup.Item className="py-3">
-        <h5>{file.metadata.title}</h5>
-        <p className="small text-truncate">
-          <a href={file.sourceUrl} alt={file.metadata.title}>
-            {file.sourceUrl}
-          </a>
-        </p>
-        <p>
-          <Badge pill variant="primary">
-            {file.job.status}
-          </Badge>
-          <small className="text-muted ml-2">{file.metadata.excerpt}</small>
-        </p>
-        <AudioPlayer file={file} />
-        <Actions
-          className="d-flex justify-content-end mt-2"
-          fileId={file._id}
-        />
+        <Row>
+          <Col md={10}>
+            <h5>{file.metadata.title}</h5>
+            <p className="small text-truncate">
+              <a href={file.sourceUrl} alt={file.metadata.title}>
+                {file.sourceUrl}
+              </a>
+            </p>
+            <p>
+              <Badge pill variant="primary">
+                {file.job.status}
+              </Badge>
+              <small className="text-muted ml-2">{file.metadata.excerpt}</small>
+            </p>
+          </Col>
+          <Col md={2}>
+            <div className="d-flex justify-content-start">
+              <Button variant="link" onClick={() => setAudio(file)}>
+                <i className="bi bi-earbuds"></i>
+              </Button>
+              <DropdownButton
+                variant="link"
+                title={<i className="bi bi-trash-fill"></i>}
+              >
+                <Dropdown.Header>Are you sure?</Dropdown.Header>
+                <Dropdown.Item onClick={() => mutate({ resourceId: file._id })}>
+                  Yes, delete.
+                </Dropdown.Item>
+                <Dropdown.Item>
+                  <strong>Go back.</strong>
+                </Dropdown.Item>
+              </DropdownButton>
+            </div>
+          </Col>
+        </Row>
       </ListGroup.Item>
     </>
   );

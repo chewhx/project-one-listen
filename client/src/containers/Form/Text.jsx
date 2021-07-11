@@ -5,28 +5,44 @@ import useResource from "../../hooks/useResource";
 import * as yup from "yup";
 import { ModalContext } from "../../providers/ModalProvider";
 
-const TextForm = () => {
+const Text = () => {
   const { PostText } = useResource();
   const { mutate } = PostText();
   const { closeModal } = useContext(ModalContext);
 
-  // Form Validation
+  // Local Storage Handler
 
+  const saveToLocalStorage = (values) => {
+    localStorage.setItem("savedTextOneListen", JSON.stringify(values));
+  };
+
+  const getFromLocalStorage = () => {
+    const savedItem = JSON.parse(localStorage.getItem("savedTextOneListen"));
+    if (savedItem) {
+      return savedItem;
+    } else {
+      return false;
+    }
+  };
+
+  // Initial Values
+  const initialValues = getFromLocalStorage() || { title: "", text: "" };
+
+  // Form Validation
   const validationSchema = yup.object().shape({
-    [`title`]: yup
+    title: yup
       .string()
       .required("Required")
       .max(100, "Limit to 100 characters"),
-    [`text`]: yup.string().required("Required"),
+    text: yup.string().required("Required"),
   });
 
-  // Submit handler
-
-  const onSubmitHandler = async (values, actions) => {
-    await mutate({
-      text: values[`text`],
-      title: values[`title`],
-      slug: values[`title`]
+  // Submit Handler
+  const onSubmitHandler = async ({ text, title }, actions) => {
+    mutate({
+      text,
+      title,
+      slug: title
         .replace(/[^a-zA-Z ]/g, "")
         .toLowerCase()
         .split(" ")
@@ -34,69 +50,67 @@ const TextForm = () => {
     });
     await actions.setSubmitting(false);
     await actions.resetForm();
+    localStorage.clear();
     closeModal();
   };
 
   return (
     <Formik
       enableReinitialize
-      initialValues={{
-        [`title`]: "",
-        [`text`]: "",
-      }}
-      onSubmit={onSubmitHandler}
+      initialValues={initialValues}
       validationSchema={validationSchema}
+      onSubmit={onSubmitHandler}
     >
       {({
         values,
         handleChange,
         handleSubmit,
-        handleReset,
         handleBlur,
         errors,
         touched,
         isSubmitting,
         setFieldValue,
+        setValues,
       }) => {
         return (
           <Form>
             <Form.Group className="my-3">
-              <Form.Label htmlFor={`title`} className="h3">
+              <Form.Label htmlFor="title" className="h3">
                 Title
               </Form.Label>
               <Form.Control
-                id={`title`}
-                name={`title`}
+                id="title"
+                name="title"
                 type="text"
-                value={values[`title`]}
+                value={values.title}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                isInvalid={errors[`title`] && touched[`title`]}
+                isInvalid={errors.title && touched.title}
               />
-              {errors[`title`] && touched[`title`] ? (
+              {errors.title && touched.title ? (
                 <Form.Control.Feedback type="invalid">
-                  {errors[`title`]}
+                  {errors.title}
                 </Form.Control.Feedback>
               ) : null}
             </Form.Group>
 
             <Form.Group className="my-3">
-              <Form.Label htmlFor={`text`} className="h3">
+              <Form.Label htmlFor="text" className="h3">
                 Text
               </Form.Label>
               <Form.Text>
                 Character count:{" "}
-                {values && values[`text`] ? values[`text`].length : "0"}
+                {values && values.text ? values.text.length : "0"}
               </Form.Text>
               <Form.Control
-                id={`text`}
-                name={`text`}
+                id="text"
+                name="text"
                 as="textarea"
                 rows="8"
-                value={values[`text`]}
+                value={values.text}
                 onChange={(e) => {
-                  setFieldValue([`text`], e.target.value);
-                  if (!values[`title`]) {
+                  setFieldValue("text", e.target.value);
+                  if (!values.title) {
                     setFieldValue(
                       [`title`],
                       e.target.value.slice(0, 60).replace(/[^a-zA-Z ]/g, "")
@@ -104,11 +118,11 @@ const TextForm = () => {
                   }
                 }}
                 onBlur={handleBlur}
-                isInvalid={errors[`text`] && touched[`text`]}
+                isInvalid={errors.text && touched.text}
               />
-              {errors[`text`] && touched[`text`] ? (
+              {errors.text && touched.text ? (
                 <Form.Control.Feedback type="invalid">
-                  {errors[`text`]}
+                  {errors.text}
                 </Form.Control.Feedback>
               ) : null}
             </Form.Group>
@@ -126,10 +140,21 @@ const TextForm = () => {
                 )}
                 {" Upload"}
               </Button>
-
-              <Button onClick={handleReset}>Clear</Button>
-
-              <Button>Save</Button>
+              <Button
+                disabled={isSubmitting}
+                onClick={() => {
+                  setValues({ text: "", title: "" });
+                  localStorage.clear();
+                }}
+              >
+                Clear
+              </Button>
+              <Button
+                disabled={isSubmitting}
+                onClick={() => saveToLocalStorage(values)}
+              >
+                Save
+              </Button>
             </Form.Row>
           </Form>
         );
@@ -138,4 +163,4 @@ const TextForm = () => {
   );
 };
 
-export default TextForm;
+export default Text;

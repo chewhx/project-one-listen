@@ -3,10 +3,11 @@ import { Form, Button } from "react-bootstrap";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { Spinner } from "react-bootstrap";
+
 import useResource from "../../hooks/useResource";
 import { ModalContext } from "../../providers/ModalProvider";
 
-const UrlForm = () => {
+const Url = () => {
   // Hooks
   const { PostUrl } = useResource();
   const { mutate } = PostUrl();
@@ -77,4 +78,4 @@ const UrlForm = () => {
   );
 };
 
-export default UrlForm;
+export default Url;
