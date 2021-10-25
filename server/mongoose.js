@@ -1,4 +1,5 @@
 require("dotenv").config();
+const config = process.env;
 const colors = require("colors");
 const mongoose = require("mongoose");
 
@@ -10,7 +11,7 @@ const options = {
 };
 
 const connectDB = async () => {
-  const conn = await mongoose.connect(process.env.MONGODB_URI, options);
+  const conn = await mongoose.connect(config.MONGODB_URI, options);
 
   console.log(`Connected: ${conn.connection.host}`.cyan.underline.bold);
 };

@@ -1,60 +1,46 @@
-import axios from "axios";
-import { USER_API } from "../constants";
-import { useQuery, useMutation } from "react-query";
+import { useState, useEffect, useContext } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
+import api from "../utils/api";
+import { GlobalContext } from "../providers/GlobalProvider";
 
 const useUser = () => {
-  const GetUser = (userId) => {
-    return useQuery(
-      ["user", userId],
-      () => axios.get(`${USER_API}/${userId}`).then((res) => res.data),
-      {
-        keepPreviousData: true,
-      }
-    );
-  };
+  const { user, refetchUser } = useContext(GlobalContext);
+  return { user, refetchUser };
 
-  const EditUser = () => {
-    return useMutation(
-      ({ userId, email, name, password, confirmPassword }) =>
-        axios
-          .put(`${USER_API}/${userId}`, {
-            email,
-            name,
-            password,
-            confirmPassword,
-          })
-          .then((res) => res.data),
-      {
-        onSuccess: (user) => {
-          console.log(user);
-        },
-        onError: (err) => {
-          console.log(err);
-        },
-      }
-    );
-  };
+  /* ------------------------ */
+  /*          HOOKS           */
+  /* ------------------------ */
 
-  const DeleteUser = () => {
-    return useMutation(
-      ({ userId }) =>
-        axios.delete(`${USER_API}/${userId}`).then((res) => res.data),
-      {
-        onSuccess: (user) => {
-          console.log(user);
-        },
-        onError: (err) => {
-          console.log(err);
-        },
-      }
-    );
-  };
+  // const { user: userFromAuth0, getAccessTokenSilently } = useAuth0();
 
-  return {
-    GetUser,
-    EditUser,
-    DeleteUser,
-  };
+  // useEffect(() => {
+  //   (async () => {
+  //     const token = await getAccessTokenSilently();
+  //     api.defaults.headers.authorization = "Bearer " + token;
+  //     const {
+  //       data: { data },
+  //     } = await api({ method: "get", url: `/user` });
+  //     const mergedUserData = { ...userFromAuth0, ...data };
+  //     setUser(mergedUserData);
+  //   })();
+  // }, [userFromAuth0]);
+
+  /* ------------------------ */
+  /*         GET USER         */
+  /* ------------------------ */
+
+  // const getUser = async () => {
+  //   try {
+  //     const {
+  //       data: { data },
+  //     } = await api({
+  //       method: "get",
+  //       url: `user`,
+  //     });
+  //   } catch (e) {
+  //     console.error(e);
+  //   }
+  // };
 };
 
 export default useUser;

@@ -1,0 +1,92 @@
+input[type="range"] {
+  -webkit-appearance: none; /* Override default CSS styles */
+  appearance: none;
+  height: 0.2rem;
+  background-color: var(--secondary);
+  border-radius: 50px;
+  margin-bottom: 1rem;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    border-radius: 50%;
+    width: 1.5rem; /* Set a specific slider handle width */
+    height: 1.5rem; /* Slider handle height */
+    background: var(--blue); /* Green background */
+    cursor: pointer; /* Cursor on hover */
+  }
+
+  &:active::-webkit-slider-thumb {
+    background-color: var(--red);
+  }
+  // &::-webkit-slider-runnable-track {
+  //   -webkit-appearance: none; /* Override default look */
+  //   appearance: none;
+  //   height: 0.25rem;
+  //   width: 12%;
+  //   background: var(--red);
+  // }
+}
+
+section {
+  padding: 3rem 0;
+}
+
+#audio-progress-seeker-wrapper {
+  position: absolute;
+  top: -1rem;
+  left: 0;
+  width: 100%;
+}
+
+#tooltip-current-time {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+progress[value] {
+  /* Reset the default appearance */
+  position: absolute;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 1.5rem;
+}
+
+progress[value]::-webkit-progress-bar {
+  width: 99%;
+  height: 1.25rem;
+  border-radius: 25px;
+}
+
+progress[value]::-webkit-progress-value {
+  background-color: violet;
+  border-radius: 25px;
+  background-size: 35px 20px, 100% 100%, 100% 100%;
+}
+
+#speedRangeInput {
+  position: relative;
+}
+
+.speedRangeLabels {
+  position: 1px;
+  width: 100%;
+  padding: 0 0.5rem;
+}
+
+#custom-list {
+  position: absolute;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+#custom-list option {
+  position: relative;
+  background: white;
+  top: 18px;
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+}
