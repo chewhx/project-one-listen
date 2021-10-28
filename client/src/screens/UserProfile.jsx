@@ -1,16 +1,15 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Col, Card, Row, Image, Button } from "react-bootstrap";
-import usePodcast from "../hooks/usePodcast";
 import useUser from "../hooks/useUser";
+import SubscribeButton from "../components/SubButton";
 
 const UserProfile = () => {
   /* ------------------------ */
   /*         HOOKS            */
   /* ------------------------ */
-  const { unsubscribe } = usePodcast();
+
   const { user, refetchUser } = useUser();
-  console.log(user);
 
   useEffect(() => {
     refetchUser();
@@ -47,21 +46,18 @@ const UserProfile = () => {
                   <Link to={`/podcast/rss?rss=${feed}`}>
                     <Card.Body>
                       <Card.Img src={image} alt={title} className="mb-4" />
-                      <Card.Title>{title}</Card.Title>
+                      <Card.Title
+                        style={{
+                          height: "3rem",
+                          maxHeight: "3rem",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {title}
+                      </Card.Title>
                     </Card.Body>
                   </Link>
-                  <Button
-                    size="sm"
-                    variant="link"
-                    onClick={async () => {
-                      await unsubscribe(feed);
-                      document.querySelector(
-                        `#user-podcast-item-${idx}`
-                      ).style.display = "none";
-                    }}
-                  >
-                    Unsubscribe
-                  </Button>
+                  <SubscribeButton title={title} url={feed} image={image} />
                 </Card>
               </Col>
             ))}

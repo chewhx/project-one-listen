@@ -2,8 +2,9 @@ import { useContext } from "react";
 import { GlobalContext } from "../providers/GlobalProvider";
 
 const useUser = () => {
-  const { user, refetchUser } = useContext(GlobalContext);
-  return { user, refetchUser };
+  const { user, refetchUser, checkUserSubscriptions } =
+    useContext(GlobalContext);
+  return { user, refetchUser, checkUserSubscriptions };
 
   /* ------------------------ */
   /*          HOOKS           */

@@ -6,12 +6,11 @@ import { useAuth0 } from "@auth0/auth0-react";
 import usePodcast from "../hooks/usePodcast";
 import DyButton from "../components/buttons/DyButton";
 import useUser from "../hooks/useUser";
+import SubscribeButton from "../components/SubButton";
 
 const Topic = () => {
   const { topic } = useParams();
-  const { isAuthenticated } = useAuth0();
-  const { subscribe, unsubscribe } = usePodcast();
-  const { user, refetchUser } = useUser();
+  const { user, isAuthenticated, refetchUser } = useUser();
 
   // const podcasts = [
   //   {
@@ -33,39 +32,39 @@ const Topic = () => {
   //   },
   // ];
   useEffect(() => {
-    refetchUser();
+    if (isAuthenticated) {
+      refetchUser();
+    }
   }, []);
 
   return (
     <>
       <Row>
         {podcastsData[topic].map(({ title, image, url }, idx) => (
-          <Col key={`topic-${topic}-${idx}`} sm={3}>
+          <Col key={`topic-${topic}-${idx}`} md={3}>
             <Card style={{ border: "0" }}>
-              <Link to={`/podcast/rss?rss=${url}`}>
-                <Card.Body>
+              <Card.Body>
+                <Link to={`/podcast/rss?rss=${url}`}>
                   <Card.Img src={image} alt={title} className="mb-4" />
-                  <Card.Title>{title}</Card.Title>
-                </Card.Body>
-              </Link>
-              {isAuthenticated && (
-                <DyButton
-                  doneStatus={user?.podcasts.some((e) => e.feed === url)}
-                  variant="link"
-                  doAction={async () => {
-                    await subscribe({
-                      title: title,
-                      feed: url,
-                      image: image,
-                    });
-                  }}
-                  undoAction={async () => {
-                    await unsubscribe({
-                      feed: url,
-                    });
-                  }}
-                />
-              )}
+                  <Card.Title
+                    style={{
+                      height: "3rem",
+                      maxHeight: "3rem",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {title}
+                  </Card.Title>
+                </Link>
+                {user && (
+                  <SubscribeButton
+                    block
+                    title={title}
+                    url={url}
+                    image={image}
+                  />
+                )}
+              </Card.Body>
             </Card>
           </Col>
         ))}
