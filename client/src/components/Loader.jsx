@@ -1,6 +1,5 @@
 import React from "react";
 import { Image } from "react-bootstrap";
-import logo from "../assets/images/radio.gif";
 
 const Loader = () => {
   return (

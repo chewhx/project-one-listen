@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Col, Card, Row, Image, Button } from "react-bootstrap";
-import api from "../utils/api";
 import usePodcast from "../hooks/usePodcast";
 import useUser from "../hooks/useUser";
 
@@ -10,8 +9,6 @@ const UserProfile = () => {
   /*         HOOKS            */
   /* ------------------------ */
   const { unsubscribe } = usePodcast();
-  const [feed, setFeed] = React.useState([]);
-
   const { user, refetchUser } = useUser();
   console.log(user);
 

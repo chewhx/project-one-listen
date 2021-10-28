@@ -1,11 +1,10 @@
 import React, { useContext } from "react";
-import { Button, Row, Col } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 import { AudioContext } from "../providers/AudioProvider";
 import { timeStamping } from "../utils";
 import {
   PlayFill,
   PauseFill,
-  ArrowClockwise,
   LightningFill,
   Lightning,
 } from "react-bootstrap-icons";
@@ -24,12 +23,12 @@ const Player = () => {
     audioPlayerRef?.current?.load();
   }, [audio]);
 
-  const calculateTime = (secs) => {
-    const minutes = Math.floor(secs / 60);
-    const seconds = Math.floor(secs % 60);
-    const returnedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
-    return `${minutes}:${returnedSeconds}`;
-  };
+  // const calculateTime = (secs) => {
+  //   const minutes = Math.floor(secs / 60);
+  //   const seconds = Math.floor(secs % 60);
+  //   const returnedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
+  //   return `${minutes}:${returnedSeconds}`;
+  // };
 
   const playButtonHandler = () => {
     if (audioPlayerRef.current.paused) {

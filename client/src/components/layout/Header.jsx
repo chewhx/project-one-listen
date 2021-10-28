@@ -1,23 +1,11 @@
 import React from "react";
-import {
-  Container,
-  Navbar,
-  Col,
-  Row,
-  Nav,
-  NavDropdown,
-  Dropdown,
-  ButtonGroup,
-  Button,
-} from "react-bootstrap";
+import { Container, Navbar, Nav, NavDropdown, Button } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { useIsFetching } from "react-query";
 import { Soundwave } from "react-bootstrap-icons";
 import { useAuth0 } from "@auth0/auth0-react";
 
 const Header = () => {
   // Hooks
-  const isFetching = useIsFetching();
   const { loginWithRedirect, logout, isAuthenticated } = useAuth0();
   // Presentation
   return (

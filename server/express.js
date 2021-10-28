@@ -53,6 +53,7 @@ app.use(passport.session());
 app.use("/auth", require("../api/v2/routes/authRoute"));
 app.use("/api/v2/user", require("../api/v2/routes/userRoute"));
 app.use("/api/v2/podcast", require("../api/v2/routes/podcastRoute"));
+app.use("/api/v2/upload", require("../api/v2/routes/uploadRoute"));
 // app.use("/api/v2/resource", require("../api/v2/routes/resourceRoute"));
 /* GET user profile. */
 // app.get(

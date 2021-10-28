@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Image, Col, Row, Card } from "react-bootstrap";
+import { Col, Row, Card } from "react-bootstrap";
 import podcastsData from "../_data/podcasts";
 import { useAuth0 } from "@auth0/auth0-react";
 import usePodcast from "../hooks/usePodcast";
@@ -35,11 +35,12 @@ const Topic = () => {
   useEffect(() => {
     refetchUser();
   }, []);
+
   return (
     <>
       <Row>
-        {podcastsData[topic].map(({ title, image, url }) => (
-          <Col sm={3}>
+        {podcastsData[topic].map(({ title, image, url }, idx) => (
+          <Col key={`topic-${topic}-${idx}`} sm={3}>
             <Card style={{ border: "0" }}>
               <Link to={`/podcast/rss?rss=${url}`}>
                 <Card.Body>

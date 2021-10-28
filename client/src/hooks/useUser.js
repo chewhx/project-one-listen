@@ -1,6 +1,4 @@
-import { useState, useEffect, useContext } from "react";
-import { useAuth0 } from "@auth0/auth0-react";
-import api from "../utils/api";
+import { useContext } from "react";
 import { GlobalContext } from "../providers/GlobalProvider";
 
 const useUser = () => {

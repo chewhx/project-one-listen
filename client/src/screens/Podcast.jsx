@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useMemo } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import xml2js from "xml2js";
 import { ListGroup } from "react-bootstrap";
@@ -19,7 +19,6 @@ import { AudioContext } from "../providers/AudioProvider";
 
 import DyButton from "../components/buttons/DyButton";
 
-import api from "../utils/api";
 import { dtFormat } from "../utils";
 import usePodcast from "../hooks/usePodcast";
 
@@ -29,7 +28,7 @@ const Podcast = () => {
   /* ------------------------ */
 
   const location = useLocation();
-  const { user, getAccessTokenSilently } = useAuth0();
+  const { user } = useAuth0();
   const url = new URLSearchParams(location.search).get("rss");
   const [input, setInput] = useState("");
   const [data, setData] = useState();
@@ -66,26 +65,26 @@ const Podcast = () => {
   /*         HANDLERS         */
   /* ------------------------ */
 
-  const userSubscribeHandler = async () => {
-    api.defaults.headers.authorization =
-      "Bearer " + (await getAccessTokenSilently());
-    const { status } = await api({
-      method: "put",
-      url: `/podcast`,
-      data: {
-        title: data.title[0],
-        feed: url,
-        image: data["itunes:image"][0].$.href,
-      },
-    });
-    // const { status } = await api({
-    //   method: "get",
-    //   url: `/user/${user.sub}`,
-    // });
+  // const userSubscribeHandler = async () => {
+  //   api.defaults.headers.authorization =
+  //     "Bearer " + (await getAccessTokenSilently());
+  //   const { status } = await api({
+  //     method: "put",
+  //     url: `/podcast`,
+  //     data: {
+  //       title: data.title[0],
+  //       feed: url,
+  //       image: data["itunes:image"][0].$.href,
+  //     },
+  //   });
+  //   // const { status } = await api({
+  //   //   method: "get",
+  //   //   url: `/user/${user.sub}`,
+  //   // });
 
-    return { status };
-  };
-  console.log(user);
+  //   return { status };
+  // };
+  // console.log(user);
 
   return !url ? (
     <>
